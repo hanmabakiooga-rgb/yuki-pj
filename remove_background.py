@@ -47,16 +47,19 @@ for filename in os.listdir(input_folder):
             # 元画像の向きを正しく修正（EXIF情報対応）
             input_image = ImageOps.exif_transpose(input_image)
 
-            # 背景削除（alpha_mattingをTrueにして境界線の精度を極限まで高める）
-            # これにより、シルバーの足元の反射やレースの透け感が綺麗に残ります
-            output_image = remove(
-                input_image,
-                session=session,
-                alpha_matting=True,
-                alpha_matting_foreground_threshold=240,
-                alpha_matting_background_threshold=10,
-                alpha_matting_erode_size=10,
-            )
+            # 背景削除（alpha_mattingで高精度処理を試み、失敗時は通常モードにフォールバック）
+            try:
+                output_image = remove(
+                    input_image,
+                    session=session,
+                    alpha_matting=True,
+                    alpha_matting_foreground_threshold=240,
+                    alpha_matting_background_threshold=10,
+                    alpha_matting_erode_size=10,
+                )
+            except Exception:
+                print(f"  alpha matting失敗、通常モードで再処理: {filename}")
+                output_image = remove(input_image, session=session)
 
             # 完全に真っ白な背景（RGB: 255, 255, 255）を作成
             white_bg = Image.new("RGB", output_image.size, (255, 255, 255))
