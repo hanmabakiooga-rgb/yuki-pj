@@ -1,6 +1,6 @@
 """
 背景削除スクリプト（Google Colab用）
-rembg + isnet-general-use モデルを使用して、画像の背景を白色に置換します。
+rembg + BiRefNet モデルを使用して、画像の背景を白色に置換します。
 
 使い方:
 1. Google Colabで実行
@@ -9,23 +9,23 @@ rembg + isnet-general-use モデルを使用して、画像の背景を白色に
 """
 
 import os
+import numpy as np
 
 from google.colab import drive
 from rembg import remove, new_session
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFilter
 
 # 1. Googleドライブをマウント
 drive.mount('/content/drive')
 
-# 2. 超高精度モデル（isnet-general-use）のセッション作成
-# このモデルは服の質感や細かい境界線の維持に優れています
-print("高精度AIモデルを読み込んでいます...（初回のみ時間がかかります）")
-model_name = "isnet-general-use"
+# 2. BiRefNet高精度モデルのセッション作成
+# BiRefNetは最新の高精度セグメンテーションモデルで、
+# 細かいエッジ（首元、髪、服の境界）の保持に優れています
+print("高精度AIモデル(BiRefNet)を読み込んでいます...（初回のみ時間がかかります）")
+model_name = "birefnet-general"
 session = new_session(model_name)
 
 # 3. フォルダパスの設定
-# 入力元：work_images フォルダ
-# 出力先：output_images フォルダ
 input_folder = '/content/drive/MyDrive/work_images'
 output_folder = '/content/drive/MyDrive/output_images'
 
@@ -47,19 +47,19 @@ for filename in os.listdir(input_folder):
             # 元画像の向きを正しく修正（EXIF情報対応）
             input_image = ImageOps.exif_transpose(input_image)
 
-            # 背景削除（alpha_mattingで高精度処理を試み、失敗時は通常モードにフォールバック）
-            try:
-                output_image = remove(
-                    input_image,
-                    session=session,
-                    alpha_matting=True,
-                    alpha_matting_foreground_threshold=240,
-                    alpha_matting_background_threshold=10,
-                    alpha_matting_erode_size=10,
-                )
-            except Exception:
-                print(f"  alpha matting失敗、通常モードで再処理: {filename}")
-                output_image = remove(input_image, session=session)
+            # BiRefNetで背景削除（alpha_mattingは使わない＝被写体を削りすぎない）
+            output_image = remove(input_image, session=session)
+
+            # マスクのエッジを滑らかにしてギザギザを軽減
+            if output_image.mode == 'RGBA':
+                alpha = output_image.split()[3]
+                # 軽くぼかしてからしきい値で二値化し、滑らかなエッジにする
+                alpha_smooth = alpha.filter(ImageFilter.GaussianBlur(radius=1))
+                alpha_np = np.array(alpha_smooth)
+                # 薄い半透明部分（背景の残り）を除去、被写体部分はしっかり残す
+                alpha_np = np.where(alpha_np > 30, 255, 0).astype(np.uint8)
+                alpha_clean = Image.fromarray(alpha_np)
+                output_image.putalpha(alpha_clean)
 
             # 完全に真っ白な背景（RGB: 255, 255, 255）を作成
             white_bg = Image.new("RGB", output_image.size, (255, 255, 255))
