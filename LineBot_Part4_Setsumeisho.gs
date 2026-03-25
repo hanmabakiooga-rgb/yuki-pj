@@ -12,8 +12,9 @@
 // ==========================================
 
 
-// ===== PDF直接配信（Googleアカウント不要） =====
-// WebアプリURL?pdf=ファイルID → HTML経由でPDFをダウンロード・表示
+// ===== PDF配信（軽量リダイレクト方式） =====
+// WebアプリURL?pdf=ファイルID → Google Drive直ダウンロードURLへ即リダイレクト
+// HTMLは数百バイトだけなのでLINEアプリ内ブラウザでもログイン画面が出ない
 function doGet(e) {
   var fileId = e && e.parameter && e.parameter.pdf;
   if (!fileId) {
@@ -22,44 +23,28 @@ function doGet(e) {
 
   try {
     var file = DriveApp.getFileById(fileId);
-    var blob = file.getBlob();
-    var base64 = Utilities.base64Encode(blob.getBytes());
-    var fileName = file.getName();
+    // 念のため共有設定（すでにcreateSetsumeishoPdfで設定済みだが安全策）
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    var driveUrl = 'https://drive.google.com/uc?id=' + fileId + '&export=download';
 
-    var html = '<!DOCTYPE html>'
-      + '<html><head>'
+    // 超軽量HTML: meta refreshで即リダイレクト + 手動リンクも用意
+    var html = '<!DOCTYPE html><html><head>'
       + '<meta charset="UTF-8">'
+      + '<meta http-equiv="refresh" content="0;url=' + driveUrl + '">'
       + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-      + '<title>' + fileName + '</title>'
+      + '<title>PDF - 髪の説明書</title>'
       + '<style>'
-      + 'body{margin:0;padding:24px;font-family:sans-serif;background:#f5f0eb;text-align:center}'
-      + 'h2{color:#8B6F5E;font-size:18px;margin-bottom:4px}'
-      + 'p{color:#666;font-size:13px}'
-      + '.btn{display:inline-block;padding:14px 32px;background:#8B6F5E;color:#fff;'
-      + 'text-decoration:none;border-radius:8px;font-size:16px;font-weight:bold;margin-top:20px}'
-      + '.sub{display:block;margin-top:12px;color:#8B6F5E;font-size:13px}'
+      + 'body{margin:0;padding:40px 20px;font-family:sans-serif;text-align:center;background:#f5f0eb}'
+      + 'p{color:#666;font-size:14px;margin-bottom:20px}'
+      + 'a{display:inline-block;padding:14px 32px;background:#8B6F5E;color:#fff;'
+      + 'text-decoration:none;border-radius:8px;font-size:16px;font-weight:bold}'
       + '</style></head><body>'
-      + '<h2>\uD83D\uDCCB ' + fileName + '</h2>'
-      + '<p>美容室HEJ</p>'
-      + '<a class="btn" id="dl">PDFを保存する</a>'
-      + '<a class="sub" id="view">ブラウザで表示する</a>'
-      + '<script>'
-      + 'var b64="' + base64 + '";'
-      + 'var bin=atob(b64);'
-      + 'var len=bin.length;'
-      + 'var bytes=new Uint8Array(len);'
-      + 'for(var i=0;i<len;i++)bytes[i]=bin.charCodeAt(i);'
-      + 'var blob=new Blob([bytes],{type:"application/pdf"});'
-      + 'var url=URL.createObjectURL(blob);'
-      + 'document.getElementById("dl").href=url;'
-      + 'document.getElementById("dl").download="' + fileName + '";'
-      + 'document.getElementById("view").href=url;'
-      + 'document.getElementById("view").target="_blank";'
-      + '</script>'
+      + '<p>PDFを準備中...</p>'
+      + '<a href="' + driveUrl + '">ダウンロードが始まらない場合はこちら</a>'
       + '</body></html>';
 
     return HtmlService.createHtmlOutput(html)
-      .setTitle(fileName)
+      .setTitle('髪の説明書')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (err) {
     return HtmlService.createHtmlOutput(
@@ -399,14 +384,16 @@ function createSetsumeishoPdf(setsumeisho, formAnswersPdf, displayName) {
   // 元のGoogle Docはゴミ箱へ
   docFile.setTrashed(true);
 
-  // WebアプリURLでPDFを直接配信（Googleアカウント不要）
+  // 常にDrive共有を設定（doGetリダイレクト先でも必要）
+  pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  // WebアプリURL経由（軽量リダイレクトページ → Drive直ダウンロード）
   const webAppUrl = getWebAppUrl();
   if (webAppUrl) {
     return webAppUrl + '?pdf=' + pdfFile.getId();
   }
   // フォールバック: Google Driveの直接ダウンロードURL
-  pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-  return 'https://drive.google.com/uc?export=download&id=' + pdfFile.getId();
+  return 'https://drive.google.com/uc?id=' + pdfFile.getId() + '&export=download';
 }
 
 
