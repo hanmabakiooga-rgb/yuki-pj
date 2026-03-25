@@ -11,6 +11,64 @@
 //   logToSheet(type, message, userId)
 // ==========================================
 
+
+// ===== PDF直接配信（Googleアカウント不要） =====
+// WebアプリURL?pdf=ファイルID → HTML経由でPDFをダウンロード・表示
+function doGet(e) {
+  var fileId = e && e.parameter && e.parameter.pdf;
+  if (!fileId) {
+    return HtmlService.createHtmlOutput('<p>パラメータが不正です。</p>');
+  }
+
+  try {
+    var file = DriveApp.getFileById(fileId);
+    var blob = file.getBlob();
+    var base64 = Utilities.base64Encode(blob.getBytes());
+    var fileName = file.getName();
+
+    var html = '<!DOCTYPE html>'
+      + '<html><head>'
+      + '<meta charset="UTF-8">'
+      + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
+      + '<title>' + fileName + '</title>'
+      + '<style>'
+      + 'body{margin:0;padding:24px;font-family:sans-serif;background:#f5f0eb;text-align:center}'
+      + 'h2{color:#8B6F5E;font-size:18px;margin-bottom:4px}'
+      + 'p{color:#666;font-size:13px}'
+      + '.btn{display:inline-block;padding:14px 32px;background:#8B6F5E;color:#fff;'
+      + 'text-decoration:none;border-radius:8px;font-size:16px;font-weight:bold;margin-top:20px}'
+      + '.sub{display:block;margin-top:12px;color:#8B6F5E;font-size:13px}'
+      + '</style></head><body>'
+      + '<h2>\uD83D\uDCCB ' + fileName + '</h2>'
+      + '<p>美容室HEJ</p>'
+      + '<a class="btn" id="dl">PDFを保存する</a>'
+      + '<a class="sub" id="view">ブラウザで表示する</a>'
+      + '<script>'
+      + 'var b64="' + base64 + '";'
+      + 'var bin=atob(b64);'
+      + 'var len=bin.length;'
+      + 'var bytes=new Uint8Array(len);'
+      + 'for(var i=0;i<len;i++)bytes[i]=bin.charCodeAt(i);'
+      + 'var blob=new Blob([bytes],{type:"application/pdf"});'
+      + 'var url=URL.createObjectURL(blob);'
+      + 'document.getElementById("dl").href=url;'
+      + 'document.getElementById("dl").download="' + fileName + '";'
+      + 'document.getElementById("view").href=url;'
+      + 'document.getElementById("view").target="_blank";'
+      + '</script>'
+      + '</body></html>';
+
+    return HtmlService.createHtmlOutput(html)
+      .setTitle(fileName)
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  } catch (err) {
+    return HtmlService.createHtmlOutput(
+      '<p>ファイルが見つかりません。<br>リンクの有効期限が切れている可能性があります。</p>'
+    );
+  }
+}
+
+
 // ===== 【設定】シート名 =====
 const FORM_SHEET_NAME = 'フォームの回答 1';
 const USERS_SHEET_NAME = 'line_users';
@@ -310,12 +368,13 @@ function createSetsumeishoPdf(setsumeisho, formAnswersPdf, displayName) {
   const pdfBlob = docFile.getAs('application/pdf');
   pdfBlob.setName(title + '.pdf');
   const pdfFile = DriveApp.createFile(pdfBlob);
-  pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
   // 元のGoogle Docはゴミ箱へ
   docFile.setTrashed(true);
 
-  return 'https://drive.google.com/file/d/' + pdfFile.getId() + '/view';
+  // WebアプリURLでPDFを直接配信（Googleアカウント不要）
+  const webAppUrl = ScriptApp.getService().getUrl();
+  return webAppUrl + '?pdf=' + pdfFile.getId();
 }
 
 
