@@ -12,78 +12,9 @@
 // ==========================================
 
 
-// ===== PDF配信（軽量リダイレクト方式） =====
-// WebアプリURL?pdf=ファイルID → Google Drive直ダウンロードURLへ即リダイレクト
-// HTMLは数百バイトだけなのでLINEアプリ内ブラウザでもログイン画面が出ない
-function doGet(e) {
-  var fileId = e && e.parameter && e.parameter.pdf;
-  if (!fileId) {
-    return HtmlService.createHtmlOutput('<p>パラメータが不正です。</p>');
-  }
-
-  try {
-    var file = DriveApp.getFileById(fileId);
-    // 念のため共有設定（すでにcreateSetsumeishoPdfで設定済みだが安全策）
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    var driveUrl = 'https://drive.google.com/uc?id=' + fileId + '&export=download';
-
-    // 超軽量HTML: meta refreshで即リダイレクト + 手動リンクも用意
-    var html = '<!DOCTYPE html><html><head>'
-      + '<meta charset="UTF-8">'
-      + '<meta http-equiv="refresh" content="0;url=' + driveUrl + '">'
-      + '<meta name="viewport" content="width=device-width,initial-scale=1.0">'
-      + '<title>PDF - 髪の説明書</title>'
-      + '<style>'
-      + 'body{margin:0;padding:40px 20px;font-family:sans-serif;text-align:center;background:#f5f0eb}'
-      + 'p{color:#666;font-size:14px;margin-bottom:20px}'
-      + 'a{display:inline-block;padding:14px 32px;background:#8B6F5E;color:#fff;'
-      + 'text-decoration:none;border-radius:8px;font-size:16px;font-weight:bold}'
-      + '</style></head><body>'
-      + '<p>PDFを準備中...</p>'
-      + '<a href="' + driveUrl + '">ダウンロードが始まらない場合はこちら</a>'
-      + '</body></html>';
-
-    return HtmlService.createHtmlOutput(html)
-      .setTitle('髪の説明書')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-  } catch (err) {
-    return HtmlService.createHtmlOutput(
-      '<p>ファイルが見つかりません。<br>リンクの有効期限が切れている可能性があります。</p>'
-    );
-  }
-}
-
-
 // ===== 【設定】シート名 =====
 const FORM_SHEET_NAME = 'フォームの回答 1';
 const USERS_SHEET_NAME = 'line_users';
-
-// ===== 【設定】WebアプリURL =====
-// GASエディタで一度 initWebAppUrl() を実行してください（初回のみ）
-function getWebAppUrl() {
-  var url = PropertiesService.getScriptProperties().getProperty('WEB_APP_URL');
-  if (!url) {
-    // フォールバック: 実行時に取得を試みる
-    try {
-      url = ScriptApp.getService().getUrl();
-      if (url) {
-        PropertiesService.getScriptProperties().setProperty('WEB_APP_URL', url);
-      }
-    } catch (e) {}
-  }
-  return url || '';
-}
-
-// GASエディタで一度だけ手動実行 → WebアプリURLをスクリプトプロパティに保存
-function initWebAppUrl() {
-  var url = ScriptApp.getService().getUrl();
-  if (url) {
-    PropertiesService.getScriptProperties().setProperty('WEB_APP_URL', url);
-    console.log('WebアプリURL保存完了: ' + url);
-  } else {
-    console.log('エラー: WebアプリURLが取得できません。先にデプロイしてください。');
-  }
-}
 
 // フォーム回答整形時に除外するキーワード
 const skipKeys       = ['識別コード', 'タイムスタンプ', 'Timestamp'];
@@ -384,15 +315,10 @@ function createSetsumeishoPdf(setsumeisho, formAnswersPdf, displayName) {
   // 元のGoogle Docはゴミ箱へ
   docFile.setTrashed(true);
 
-  // 常にDrive共有を設定（doGetリダイレクト先でも必要）
+  // ANYONE_WITH_LINK共有 → Googleアカウント不要でダウンロード可能
   pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-  // WebアプリURL経由（軽量リダイレクトページ → Drive直ダウンロード）
-  const webAppUrl = getWebAppUrl();
-  if (webAppUrl) {
-    return webAppUrl + '?pdf=' + pdfFile.getId();
-  }
-  // フォールバック: Google Driveの直接ダウンロードURL
+  // Drive直ダウンロードURLをFlexメッセージに直接使う（GAS経由なし）
   return 'https://drive.google.com/uc?id=' + pdfFile.getId() + '&export=download';
 }
 
