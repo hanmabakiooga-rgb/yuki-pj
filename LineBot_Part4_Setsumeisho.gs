@@ -73,6 +73,33 @@ function doGet(e) {
 const FORM_SHEET_NAME = 'フォームの回答 1';
 const USERS_SHEET_NAME = 'line_users';
 
+// ===== 【設定】WebアプリURL =====
+// GASエディタで一度 initWebAppUrl() を実行してください（初回のみ）
+function getWebAppUrl() {
+  var url = PropertiesService.getScriptProperties().getProperty('WEB_APP_URL');
+  if (!url) {
+    // フォールバック: 実行時に取得を試みる
+    try {
+      url = ScriptApp.getService().getUrl();
+      if (url) {
+        PropertiesService.getScriptProperties().setProperty('WEB_APP_URL', url);
+      }
+    } catch (e) {}
+  }
+  return url || '';
+}
+
+// GASエディタで一度だけ手動実行 → WebアプリURLをスクリプトプロパティに保存
+function initWebAppUrl() {
+  var url = ScriptApp.getService().getUrl();
+  if (url) {
+    PropertiesService.getScriptProperties().setProperty('WEB_APP_URL', url);
+    console.log('WebアプリURL保存完了: ' + url);
+  } else {
+    console.log('エラー: WebアプリURLが取得できません。先にデプロイしてください。');
+  }
+}
+
 // フォーム回答整形時に除外するキーワード
 const skipKeys       = ['識別コード', 'タイムスタンプ', 'Timestamp'];
 const skipKeysBlock6 = ['Q33', 'Q34', 'Q35'];
@@ -373,8 +400,13 @@ function createSetsumeishoPdf(setsumeisho, formAnswersPdf, displayName) {
   docFile.setTrashed(true);
 
   // WebアプリURLでPDFを直接配信（Googleアカウント不要）
-  const webAppUrl = ScriptApp.getService().getUrl();
-  return webAppUrl + '?pdf=' + pdfFile.getId();
+  const webAppUrl = getWebAppUrl();
+  if (webAppUrl) {
+    return webAppUrl + '?pdf=' + pdfFile.getId();
+  }
+  // フォールバック: Google Driveの直接ダウンロードURL
+  pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return 'https://drive.google.com/uc?export=download&id=' + pdfFile.getId();
 }
 
 
