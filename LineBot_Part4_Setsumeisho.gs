@@ -147,7 +147,7 @@ function sendFlexPushMessage(userId, flexContents) {
       method: 'post',
       contentType: 'application/json',
       headers: {
-        Authorization: 'Bearer ' + CONFIG.LINE_CHANNEL_ACCESS_TOKEN
+        Authorization: 'Bearer ' + CONFIG.LINE_ACCESS_TOKEN
       },
       payload: JSON.stringify(payload),
       muteHttpExceptions: true
@@ -605,5 +605,31 @@ function testFormSubmit() {
     Utilities.sleep(500);
     sendPushMessage(adminId, buildCtaMessage());
     console.log('テスト送信完了');
+  }
+}
+
+
+// ===== LINEユーザー情報をline_usersシートに保存 =====
+function saveLineUser(userId, displayName) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    let sheet = ss.getSheetByName('line_users');
+    if (!sheet) {
+      sheet = ss.insertSheet('line_users');
+      sheet.appendRow(['userId', 'displayName', 'updatedAt']);
+    }
+
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]).trim() === userId) {
+        sheet.getRange(i + 1, 2).setValue(displayName);
+        sheet.getRange(i + 1, 3).setValue(new Date());
+        return;
+      }
+    }
+
+    sheet.appendRow([userId, displayName, new Date()]);
+  } catch (e) {
+    console.error('saveLineUser失敗: ' + e.toString());
   }
 }
