@@ -1,6 +1,7 @@
 // ==========================================
-// LINE予約ボット v7.15 - Part4: 説明書自動生成（Flexメッセージ＋PDF版）
-// Googleフォーム回答 → Gemini生成 → PDF作成 → FlexメッセージでLINE送信
+// LINE予約ボット v7.15 - Part4: 説明書自動生成（LINEテキスト直送版）
+// Googleフォーム回答 → Gemini生成 → LINEテキストメッセージで直接送信
+// ★ Google Drive/PDF不要 → スマホでもアカウントなしで確実に見れる
 // 既存コード（Part1〜3）は一切変更不要
 // ★ LINEブラウザ プリフィル無視 対策済み
 // ★ BLOCK6（HEJへの相談）はPDFから除外
@@ -76,25 +77,25 @@ function onFormSubmit(e) {
 
     // --- Step 3: フォーム回答を整形 ---
     const formattedAnswersAll = formatFormAnswers(responses, false);
-    const formattedAnswersPdf = formatFormAnswers(responses, true);
-    console.log('回答整形完了 (全体: ' + formattedAnswersAll.length + '文字, PDF用: ' + formattedAnswersPdf.length + '文字)');
+    console.log('回答整形完了 (' + formattedAnswersAll.length + '文字)');
 
     // --- Step 4: Geminiで説明書を生成 ---
     console.log('Gemini生成開始...');
     const setsumeisho = generateSetsumeishoWithGemini(formattedAnswersAll, displayName);
     console.log('Gemini生成完了 (' + setsumeisho.length + '文字)');
 
-    // --- Step 5: PDFを作成 ---
-    console.log('PDF作成開始...');
-    const pdfUrl = createSetsumeishoPdf(setsumeisho, formattedAnswersPdf, displayName);
-    console.log('PDF作成完了: ' + pdfUrl);
-
-    // --- Step 6: LINE送信（Flexメッセージ） ---
-    console.log('Flexメッセージ送信...');
-    const flexOk = sendFlexPushMessage(userId, buildFlexCard(displayName, pdfUrl));
+    // --- Step 5: Flexヘッダーカード送信 ---
+    console.log('Flexヘッダー送信...');
+    const flexOk = sendFlexPushMessage(userId, buildFlexCard(displayName));
     if (!flexOk) {
-      notifyAdmin(displayName + 'さんへのFlexメッセージ送信に失敗しました。PDF URL: ' + pdfUrl);
+      notifyAdmin(displayName + 'さんへのFlexメッセージ送信に失敗しました。');
     }
+
+    Utilities.sleep(500);
+
+    // --- Step 6: 説明書テキストをLINEで直接送信 ---
+    console.log('説明書テキスト送信...');
+    sendSetsumeishoText(userId, setsumeisho);
 
     Utilities.sleep(500);
 
@@ -102,7 +103,7 @@ function onFormSubmit(e) {
     console.log('CTAメッセージ送信...');
     sendPushMessage(userId, buildCtaMessage());
 
-    logToSheet('FORM', displayName + 'さんへ説明書PDFを送信しました', userId);
+    logToSheet('FORM', displayName + 'さんへ説明書を送信しました', userId);
     console.log('=== onFormSubmit 完了 ===');
 
   } catch (err) {
@@ -168,8 +169,8 @@ function sendFlexPushMessage(userId, flexContents) {
 }
 
 
-// ===== Flexカード：PDF案内 =====
-function buildFlexCard(displayName, pdfUrl) {
+// ===== Flexカード：ヘッダー通知 =====
+function buildFlexCard(displayName) {
   const today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy年MM月dd日');
   return {
     type: 'bubble',
@@ -210,7 +211,7 @@ function buildFlexCard(displayName, pdfUrl) {
         },
         {
           type: 'text',
-          text: 'あなただけの髪の説明書ができました。\n美容室でそのまま担当さんに見せてください。',
+          text: 'あなただけの髪の説明書ができました。\nこの下のメッセージをそのまま美容室で見せてください。',
           wrap: true,
           size: 'sm',
           color: '#555555',
@@ -242,85 +243,48 @@ function buildFlexCard(displayName, pdfUrl) {
           ]
         }
       ]
-    },
-    footer: {
-      type: 'box',
-      layout: 'vertical',
-      paddingAll: '16px',
-      contents: [
-        {
-          type: 'button',
-          style: 'primary',
-          color: '#8B6F5E',
-          height: 'sm',
-          action: {
-            type: 'uri',
-            label: 'PDFを開く・保存する',
-            uri: pdfUrl
-          }
-        }
-      ]
     }
   };
 }
 
 
+// ===== 説明書テキストをLINEメッセージで直接送信 =====
+function sendSetsumeishoText(userId, setsumeisho) {
+  var MAX_LEN = 4800; // LINEの上限5000文字に余裕を持たせる
+
+  if (setsumeisho.length <= MAX_LEN) {
+    sendPushMessage(userId, setsumeisho);
+    return;
+  }
+
+  // 長い場合は■セクション区切りで分割送信
+  var sections = setsumeisho.split(/(?=■)/);
+  var chunk = '';
+  for (var i = 0; i < sections.length; i++) {
+    if ((chunk + sections[i]).length > MAX_LEN) {
+      if (chunk.trim()) {
+        sendPushMessage(userId, chunk.trim());
+        Utilities.sleep(300);
+      }
+      chunk = sections[i];
+    } else {
+      chunk += sections[i];
+    }
+  }
+  if (chunk.trim()) {
+    sendPushMessage(userId, chunk.trim());
+  }
+}
+
+
 // ===== CTA テキストメッセージ =====
 function buildCtaMessage() {
-  return '大阪四ツ橋のHEJにご来店の場合は、このPDFをそのままLINEで送っていただければ事前に確認します😊\nご予約・ご相談はこのLINEからどうぞ！';
+  return '大阪四ツ橋のHEJにご来店の場合は、上の説明書をそのままスクショしてLINEで送っていただければ事前に確認します😊\nご予約・ご相談はこのLINEからどうぞ！';
 }
 
 
-// ===== PDF作成 → Driveに保存 → 共有URLを返す =====
-function createSetsumeishoPdf(setsumeisho, formAnswersPdf, displayName) {
-  const today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy年MM月dd日');
-  const title = displayName + 'さんの髪の説明書';
-
-  const doc  = DocumentApp.create(title);
-  const body = doc.getBody();
-
-  // タイトル
-  const titlePara = body.appendParagraph(title);
-  titlePara.setHeading(DocumentApp.ParagraphHeading.HEADING1);
-  titlePara.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-
-  // 作成日
-  const datePara = body.appendParagraph('作成日：' + today);
-  datePara.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  datePara.setFontSize(10);
-
-  body.appendParagraph('━━━━━━━━━━━━━━━━━━━━━━━').setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  body.appendParagraph('');
-
-  // Gemini生成の説明書本文
-  body.appendParagraph(setsumeisho).setFontSize(11);
-  body.appendParagraph('');
-
-  body.appendParagraph('━━━━━━━━━━━━━━━━━━━━━━━').setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  body.appendParagraph('');
-
-  // フォーム回答詳細（Block6除外）
-  const detailHeader = body.appendParagraph('【フォーム回答詳細】');
-  detailHeader.setHeading(DocumentApp.ParagraphHeading.HEADING2);
-  body.appendParagraph(formAnswersPdf).setFontSize(10);
-
-  doc.saveAndClose();
-
-  // PDFとしてエクスポートしてDriveに保存
-  const docFile = DriveApp.getFileById(doc.getId());
-  const pdfBlob = docFile.getAs('application/pdf');
-  pdfBlob.setName(title + '.pdf');
-  const pdfFile = DriveApp.createFile(pdfBlob);
-
-  // 元のGoogle Docはゴミ箱へ
-  docFile.setTrashed(true);
-
-  // ANYONE_WITH_LINK共有 → Googleアカウント不要でダウンロード可能
-  pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-
-  // Drive直ダウンロードURLをFlexメッセージに直接使う（GAS経由なし）
-  return 'https://drive.google.com/uc?id=' + pdfFile.getId() + '&export=download';
-}
+// ===== （不要になったがDrive保存用に残す） =====
+// PDF作成は廃止。説明書はLINEテキストで直接送信する。
 
 
 // ===== フォーム回答を整形 =====
@@ -351,7 +315,7 @@ function generateSetsumeishoWithGemini(formAnswers, displayName) {
     ],
     generationConfig: {
       temperature: 0.4,
-      maxOutputTokens: 1500
+      maxOutputTokens: 3000
     }
   };
 
@@ -500,7 +464,7 @@ function sendFormUrl(userId) {
 
   const msg = '「あなただけの髪の説明書」を作ります📋\n\n' +
     '下のフォームに回答してください（約5分）\n' +
-    '回答後、LINEにPDFをお送りします✨\n\n' +
+    '回答後、LINEに説明書をお送りします✨\n\n' +
     '▼ フォームはこちら\n' + formUrl;
 
   sendPushMessage(userId, msg);
@@ -588,13 +552,11 @@ function testFormSubmit() {
   };
 
   const formattedAll = formatFormAnswers(mockResponses, false);
-  const formattedPdf = formatFormAnswers(mockResponses, true);
   const setsumeisho  = generateSetsumeishoWithGemini(formattedAll, 'テストユーザー');
-  const pdfUrl       = createSetsumeishoPdf(setsumeisho, formattedPdf, 'テストユーザー');
-  const flexCard     = buildFlexCard('テストユーザー', pdfUrl);
+  const flexCard     = buildFlexCard('テストユーザー');
 
-  console.log('=== PDF URL ===');
-  console.log(pdfUrl);
+  console.log('=== 説明書テキスト ===');
+  console.log(setsumeisho);
   console.log('=== Flex JSON ===');
   console.log(JSON.stringify(flexCard, null, 2));
   console.log('=== CTA メッセージ ===');
@@ -606,6 +568,8 @@ function testFormSubmit() {
   if (adminId) {
     console.log('管理者にテスト送信...');
     sendFlexPushMessage(adminId, flexCard);
+    Utilities.sleep(500);
+    sendSetsumeishoText(adminId, setsumeisho);
     Utilities.sleep(500);
     sendPushMessage(adminId, buildCtaMessage());
     console.log('テスト送信完了');
