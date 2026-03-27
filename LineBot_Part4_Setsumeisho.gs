@@ -74,13 +74,13 @@ function onFormSubmit(e) {
     }
     console.log('表示名: ' + displayName);
 
-    // --- Step 3: フォーム回答を整形 ---
-    const formattedAnswersPdf = formatFormAnswers(responses, true);
-    console.log('回答整形完了 (' + formattedAnswersPdf.length + '文字)');
+    // --- Step 3: フォーム回答を整形（配列で取得） ---
+    const qaList = formatFormAnswersAsList(responses, true);
+    console.log('回答整形完了 (' + qaList.length + '問)');
 
     // --- Step 4: PDFを作成（フォーム回答をそのまま使用） ---
     console.log('PDF作成開始...');
-    const pdfUrl = createSetsumeishoPdf(formattedAnswersPdf, displayName);
+    const pdfUrl = createSetsumeishoPdf(qaList, displayName);
     console.log('PDF作成完了: ' + pdfUrl);
 
     // --- Step 6: LINE送信（Flexメッセージ） ---
@@ -266,7 +266,8 @@ function buildCtaMessage() {
 
 
 // ===== PDF作成 → Driveに保存 → 共有URLを返す =====
-function createSetsumeishoPdf(formAnswersPdf, displayName) {
+// qaList: [{question, answer}, ...] の配列
+function createSetsumeishoPdf(qaList, displayName) {
   const today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy年MM月dd日');
   const title = displayName + 'さんの髪の説明書';
 
@@ -286,8 +287,17 @@ function createSetsumeishoPdf(formAnswersPdf, displayName) {
   body.appendParagraph('━━━━━━━━━━━━━━━━━━━━━━━').setAlignment(DocumentApp.HorizontalAlignment.CENTER);
   body.appendParagraph('');
 
-  // フォーム回答（Block6除外）
-  body.appendParagraph(formAnswersPdf).setFontSize(11);
+  // フォーム回答を1問ずつ個別の段落として追加（切れ防止）
+  for (var i = 0; i < qaList.length; i++) {
+    var qPara = body.appendParagraph('【' + qaList[i].question + '】');
+    qPara.setBold(true);
+    qPara.setFontSize(11);
+
+    var aPara = body.appendParagraph(qaList[i].answer);
+    aPara.setFontSize(11);
+
+    body.appendParagraph('');
+  }
 
   doc.saveAndClose();
 
@@ -308,7 +318,7 @@ function createSetsumeishoPdf(formAnswersPdf, displayName) {
 }
 
 
-// ===== フォーム回答を整形 =====
+// ===== フォーム回答を整形（文字列版） =====
 // excludeBlock6 = true のとき Q33〜Q35 を除外
 function formatFormAnswers(responses, excludeBlock6) {
   const lines = [];
@@ -322,6 +332,22 @@ function formatFormAnswers(responses, excludeBlock6) {
     }
   }
   return lines.join('\n\n');
+}
+
+
+// ===== フォーム回答を配列で取得（PDF用：1問ずつ段落追加するため） =====
+function formatFormAnswersAsList(responses, excludeBlock6) {
+  const list = [];
+  for (const [question, answerArr] of Object.entries(responses)) {
+    if (skipKeys.some(k => question.includes(k))) continue;
+    if (excludeBlock6 && skipKeysBlock6.some(k => question.includes(k))) continue;
+
+    const answer = Array.isArray(answerArr) ? answerArr[0] : answerArr;
+    if (answer && String(answer).trim() !== '') {
+      list.push({ question: question, answer: String(answer).trim() });
+    }
+  }
+  return list;
 }
 
 
@@ -574,8 +600,8 @@ function testFormSubmit() {
     'Q35　大阪四ツ橋のHEJへの来店、興味はありますか？': ['まずはLINEで相談したい']
   };
 
-  const formattedPdf = formatFormAnswers(mockResponses, true);
-  const pdfUrl       = createSetsumeishoPdf(formattedPdf, 'テストユーザー');
+  const qaList  = formatFormAnswersAsList(mockResponses, true);
+  const pdfUrl  = createSetsumeishoPdf(qaList, 'テストユーザー');
   const flexCard     = buildFlexCard('テストユーザー', pdfUrl);
 
   console.log('=== PDF URL ===');
