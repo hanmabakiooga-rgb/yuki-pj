@@ -75,18 +75,12 @@ function onFormSubmit(e) {
     console.log('表示名: ' + displayName);
 
     // --- Step 3: フォーム回答を整形 ---
-    const formattedAnswersAll = formatFormAnswers(responses, false);
     const formattedAnswersPdf = formatFormAnswers(responses, true);
-    console.log('回答整形完了 (全体: ' + formattedAnswersAll.length + '文字, PDF用: ' + formattedAnswersPdf.length + '文字)');
+    console.log('回答整形完了 (' + formattedAnswersPdf.length + '文字)');
 
-    // --- Step 4: Geminiで説明書を生成 ---
-    console.log('Gemini生成開始...');
-    const setsumeisho = generateSetsumeishoWithGemini(formattedAnswersAll, displayName);
-    console.log('Gemini生成完了 (' + setsumeisho.length + '文字)');
-
-    // --- Step 5: PDFを作成 ---
+    // --- Step 4: PDFを作成（フォーム回答をそのまま使用） ---
     console.log('PDF作成開始...');
-    const pdfUrl = createSetsumeishoPdf(setsumeisho, formattedAnswersPdf, displayName);
+    const pdfUrl = createSetsumeishoPdf(formattedAnswersPdf, displayName);
     console.log('PDF作成完了: ' + pdfUrl);
 
     // --- Step 6: LINE送信（Flexメッセージ） ---
@@ -272,7 +266,7 @@ function buildCtaMessage() {
 
 
 // ===== PDF作成 → Driveに保存 → 共有URLを返す =====
-function createSetsumeishoPdf(setsumeisho, formAnswersPdf, displayName) {
+function createSetsumeishoPdf(formAnswersPdf, displayName) {
   const today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy年MM月dd日');
   const title = displayName + 'さんの髪の説明書';
 
@@ -292,17 +286,8 @@ function createSetsumeishoPdf(setsumeisho, formAnswersPdf, displayName) {
   body.appendParagraph('━━━━━━━━━━━━━━━━━━━━━━━').setAlignment(DocumentApp.HorizontalAlignment.CENTER);
   body.appendParagraph('');
 
-  // Gemini生成の説明書本文
-  body.appendParagraph(setsumeisho).setFontSize(11);
-  body.appendParagraph('');
-
-  body.appendParagraph('━━━━━━━━━━━━━━━━━━━━━━━').setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  body.appendParagraph('');
-
-  // フォーム回答詳細（Block6除外）
-  const detailHeader = body.appendParagraph('【フォーム回答詳細】');
-  detailHeader.setHeading(DocumentApp.ParagraphHeading.HEADING2);
-  body.appendParagraph(formAnswersPdf).setFontSize(10);
+  // フォーム回答（Block6除外）
+  body.appendParagraph(formAnswersPdf).setFontSize(11);
 
   doc.saveAndClose();
 
@@ -589,10 +574,8 @@ function testFormSubmit() {
     'Q35　大阪四ツ橋のHEJへの来店、興味はありますか？': ['まずはLINEで相談したい']
   };
 
-  const formattedAll = formatFormAnswers(mockResponses, false);
   const formattedPdf = formatFormAnswers(mockResponses, true);
-  const setsumeisho  = generateSetsumeishoWithGemini(formattedAll, 'テストユーザー');
-  const pdfUrl       = createSetsumeishoPdf(setsumeisho, formattedPdf, 'テストユーザー');
+  const pdfUrl       = createSetsumeishoPdf(formattedPdf, 'テストユーザー');
   const flexCard     = buildFlexCard('テストユーザー', pdfUrl);
 
   console.log('=== PDF URL ===');
