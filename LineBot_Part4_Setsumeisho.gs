@@ -1,6 +1,6 @@
 // ==========================================
-// LINE予約ボット v7.15 - Part4: 説明書自動生成（Flexメッセージ＋PDF版）
-// Googleフォーム回答 → Gemini生成 → PDF作成 → FlexメッセージでLINE送信
+// LINE予約ボット v7.16 - Part4: 説明書自動生成（Flexメッセージ＋PDF版）
+// Googleフォーム回答 → PDF作成 → FlexメッセージでLINE送信
 // 既存コード（Part1〜3）は一切変更不要
 // ★ LINEブラウザ プリフィル無視 対策済み
 // ★ BLOCK6（HEJへの相談）はPDFから除外
@@ -75,8 +75,9 @@ function onFormSubmit(e) {
     console.log('表示名: ' + displayName);
 
     // --- Step 3: フォーム回答を整形（配列で取得） ---
+    console.log('フォーム回答キー数（全体）: ' + Object.keys(responses).length);
     const qaList = formatFormAnswersAsList(responses, true);
-    console.log('回答整形完了 (' + qaList.length + '問)');
+    console.log('回答整形完了 (' + qaList.length + '問 / スキップ: 識別コード,タイムスタンプ,Q33-35)');
 
     // --- Step 4: PDFを作成（フォーム回答をそのまま使用） ---
     console.log('PDF作成開始...');
@@ -320,6 +321,7 @@ function createSetsumeishoPdf(qaList, displayName) {
 
 // ===== フォーム回答を整形（文字列版） =====
 // excludeBlock6 = true のとき Q33〜Q35 を除外
+// ★ 全質問を含める（未回答は「未回答」と表示）
 function formatFormAnswers(responses, excludeBlock6) {
   const lines = [];
   for (const [question, answerArr] of Object.entries(responses)) {
@@ -327,15 +329,15 @@ function formatFormAnswers(responses, excludeBlock6) {
     if (excludeBlock6 && skipKeysBlock6.some(k => question.includes(k))) continue;
 
     const answer = Array.isArray(answerArr) ? answerArr[0] : answerArr;
-    if (answer && String(answer).trim() !== '') {
-      lines.push('【' + question + '】\n' + String(answer).trim());
-    }
+    const trimmed = (answer && String(answer).trim() !== '') ? String(answer).trim() : '未回答';
+    lines.push('【' + question + '】\n' + trimmed);
   }
   return lines.join('\n\n');
 }
 
 
 // ===== フォーム回答を配列で取得（PDF用：1問ずつ段落追加するため） =====
+// ★ 全質問をPDFに含める（未回答は「未回答」と表示）
 function formatFormAnswersAsList(responses, excludeBlock6) {
   const list = [];
   for (const [question, answerArr] of Object.entries(responses)) {
@@ -343,9 +345,8 @@ function formatFormAnswersAsList(responses, excludeBlock6) {
     if (excludeBlock6 && skipKeysBlock6.some(k => question.includes(k))) continue;
 
     const answer = Array.isArray(answerArr) ? answerArr[0] : answerArr;
-    if (answer && String(answer).trim() !== '') {
-      list.push({ question: question, answer: String(answer).trim() });
-    }
+    const trimmed = (answer && String(answer).trim() !== '') ? String(answer).trim() : '未回答';
+    list.push({ question: question, answer: trimmed });
   }
   return list;
 }
