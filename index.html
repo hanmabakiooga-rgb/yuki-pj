@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>KAMITO — 触れた瞬間に、記憶に溶けこむ。</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f0f0f4;
+      --text: #1c1a16;
+      --accent: #c8a870;
+      --card-haku: #f5f0e8;
+      --card-en: #e8e4dc;
+      --card-kiza: #1c1a16;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans JP', sans-serif;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100svh;
+    }
+
+    /* ── 背景流れるテキスト ── */
+    .bg-words {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-word {
+      position: absolute;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 300;
+      font-size: clamp(10px, 2.8vw, 13px);
+      color: var(--text);
+      opacity: 0;
+      white-space: nowrap;
+      letter-spacing: 0.12em;
+      animation: wordDrift linear infinite;
+    }
+
+    @keyframes wordDrift {
+      0%   { opacity: 0; transform: translateY(0); }
+      10%  { opacity: 0.06; }
+      80%  { opacity: 0.06; }
+      100% { opacity: 0; transform: translateY(-60px); }
+    }
+
+    /* ── カードステージ ── */
+    .stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .card-wrapper {
+      position: relative;
+      width: min(85vw, 320px);
+      aspect-ratio: 1.74 / 1;
+    }
+
+    .business-card {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      opacity: 0;
+      transform: scale(2.4);
+      overflow: hidden;
+      will-change: transform, opacity;
+      box-shadow:
+        0 2px 8px rgba(28,26,22,0.08),
+        0 8px 24px rgba(28,26,22,0.06);
+    }
+
+    /* 紙のテクスチャ（SVG noise） */
+    .card-texture {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    /* 活版・エンボス・箔の加工エフェクト layer */
+    .card-process-layer {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .foil-sweep {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(200,168,112,0.55) 50%,
+        transparent 70%
+      );
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+
+    .emboss-line {
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,168,112,0.5), transparent);
+      opacity: 0;
+    }
+
+    /* カード内テキスト */
+    .card-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 14% 14%;
+      opacity: 0;
+    }
+
+    .card-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: clamp(16px, 5.5vw, 22px);
+      letter-spacing: 0.22em;
+      margin-bottom: 6px;
+    }
+
+    .card-tagline {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 300;
+      font-size: clamp(6px, 1.8vw, 8px);
+      letter-spacing: 0.12em;
+      opacity: 0.65;
+    }
+
+    .card-detail {
+      position: absolute;
+      bottom: 14%;
+      right: 14%;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(7px, 2vw, 9px);
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+    }
+
+    /* haku カード */
+    .card-haku {
+      background-color: var(--card-haku);
+    }
+    .card-haku .card-brand { color: var(--text); }
+    .card-haku .card-tagline { color: var(--text); }
+    .card-haku .card-detail { color: var(--text); }
+
+    /* en カード */
+    .card-en {
+      background-color: var(--card-en);
+    }
+    .card-en .card-brand { color: var(--text); }
+    .card-en .card-tagline { color: var(--text); }
+    .card-en .card-detail { color: var(--text); }
+
+    /* kiza カード */
+    .card-kiza {
+      background-color: var(--card-kiza);
+    }
+    .card-kiza .card-brand { color: #f0ece4; }
+    .card-kiza .card-tagline { color: rgba(240,236,228,0.6); }
+    .card-kiza .card-detail { color: var(--accent); }
+
+    /* 各カードの箔押しライン位置 */
+    .card-haku .emboss-line { top: 38%; }
+    .card-en .emboss-line { top: 58%; }
+    .card-kiza .emboss-line { top: 30%; background: linear-gradient(90deg, transparent, rgba(200,168,112,0.7), transparent); }
+
+    /* ── 横スクロール ヒント cards ── */
+    .cards-scroll {
+      position: absolute;
+      bottom: 13%;
+      left: 0;
+      right: 0;
+      height: 36px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+      mask-image: linear-gradient(90deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+    }
+
+    .cards-track {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      animation: trackScroll 18s linear infinite;
+      width: max-content;
+    }
+
+    @keyframes trackScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .mini-card {
+      width: 54px;
+      height: 31px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      opacity: 0.3;
+      border: 1px solid rgba(28,26,22,0.12);
+      transition: opacity 0.3s;
+    }
+
+    .mini-card.active { opacity: 0.85; border-color: var(--accent); }
+    .mini-card.mc-haku { background: var(--card-haku); }
+    .mini-card.mc-en   { background: var(--card-en); }
+    .mini-card.mc-kiza { background: var(--card-kiza); }
+
+    /* ── 中央固定テキスト ── */
+    .hero-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 22%;
+      pointer-events: none;
+      z-index: 3;
+      text-align: center;
+    }
+
+    .hero-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(42px, 13vw, 64px);
+      letter-spacing: 0.28em;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 14px;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: heroIn 1.2s cubic-bezier(.16,1,.3,1) 0.4s forwards;
+    }
+
+    .hero-sub {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 300;
+      font-size: clamp(10px, 3vw, 13px);
+      letter-spacing: 0.18em;
+      color: var(--text);
+      opacity: 0;
+      transform: translateY(6px);
+      animation: heroIn 1.2s cubic-bezier(.16,1,.3,1) 0.9s forwards;
+    }
+
+    @keyframes heroIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── プロセス インジケータ ── */
+    .process-indicator {
+      position: absolute;
+      top: 8%;
+      right: 6%;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      opacity: 0;
+      animation: heroIn 1s ease 1.4s forwards;
+    }
+
+    .process-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text);
+      opacity: 0.45;
+    }
+
+    .process-steps {
+      display: flex;
+      gap: 4px;
+    }
+
+    .step-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text);
+      opacity: 0.2;
+      transition: opacity 0.4s, background 0.4s;
+    }
+
+    .step-dot.active {
+      opacity: 1;
+      background: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 背景流れる文字 -->
+  <div class="bg-words" id="bgWords"></div>
+
+  <!-- カードアニメーション -->
+  <div class="stage">
+    <div class="card-wrapper">
+
+      <!-- haku -->
+      <div class="business-card card-haku" id="card-haku">
+        <div class="card-texture" id="texture-haku"></div>
+        <div class="card-process-layer">
+          <div class="emboss-line"></div>
+          <div class="foil-sweep" id="foil-haku"></div>
+        </div>
+        <div class="card-text">
+          <div class="card-brand">KAMITO</div>
+          <div class="card-tagline">letterpress / 活版</div>
+          <div class="card-detail">haku</div>
+        </div>
+      </div>
+
+      <!-- en -->
+      <div class="business-card card-en" id="card-en">
+        <div class="card-texture" id="texture-en"></div>
+        <div class="card-process-layer">
+          <div class="emboss-line"></div>
+          <div class="foil-sweep" id="foil-en"></div>
+        </div>
+        <div class="card-text">
+          <div class="card-brand">KAMITO</div>
+          <div class="card-tagline">foil stamping / 箔押し</div>
+          <div class="card-detail">en</div>
+        </div>
+      </div>
+
+      <!-- kiza -->
+      <div class="business-card card-kiza" id="card-kiza">
+        <div class="card-texture" id="texture-kiza"></div>
+        <div class="card-process-layer">
+          <div class="emboss-line"></div>
+          <div class="foil-sweep" id="foil-kiza"></div>
+        </div>
+        <div class="card-text">
+          <div class="card-brand">KAMITO</div>
+          <div class="card-tagline">emboss / エンボス</div>
+          <div class="card-detail">kiza</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ミニカードスクロール -->
+  <div class="cards-scroll">
+    <div class="cards-track" id="cardsTrack"></div>
+  </div>
+
+  <!-- プロセスインジケータ -->
+  <div class="process-indicator">
+    <div class="process-label" id="processLabel">haku</div>
+    <div class="process-steps" id="processSteps">
+      <div class="step-dot active" data-step="0"></div>
+      <div class="step-dot" data-step="1"></div>
+      <div class="step-dot" data-step="2"></div>
+      <div class="step-dot" data-step="3"></div>
+    </div>
+  </div>
+
+  <!-- 中央テキスト -->
+  <div class="hero-text">
+    <div class="hero-logo">KAMITO</div>
+    <div class="hero-sub">触れた瞬間に、記憶に溶けこむ。</div>
+  </div>
+
+  <script>
+    // ── 背景ワード生成 ──
+    const words = [
+      '触れた瞬間に', 'letterpress', '記憶に溶けこむ', 'foil stamping',
+      '紙と', 'texture', '活版', 'quality', '余白', 'tactile', '静けさ', 'craft',
+      '箔押し', 'emboss', '印刷', 'paper', '手触り', 'minimal', '刻む', 'press'
+    ];
+
+    const bgWords = document.getElementById('bgWords');
+
+    function spawnWord() {
+      const el = document.createElement('div');
+      el.className = 'bg-word';
+      el.textContent = words[Math.floor(Math.random() * words.length)];
+      const x = Math.random() * 90;
+      const y = 20 + Math.random() * 70;
+      const dur = 8 + Math.random() * 10;
+      el.style.left = x + '%';
+      el.style.top = y + '%';
+      el.style.animationDuration = dur + 's';
+      el.style.animationDelay = (Math.random() * 4) + 's';
+      bgWords.appendChild(el);
+      setTimeout(() => el.remove(), (dur + 4) * 1000);
+    }
+
+    for (let i = 0; i < 16; i++) setTimeout(spawnWord, i * 600);
+    setInterval(spawnWord, 1200);
+
+    // ── ミニカード生成 ──
+    const track = document.getElementById('cardsTrack');
+    const miniTypes = ['haku','en','kiza','haku','en','kiza','haku'];
+    // 2セット分
+    for (let s = 0; s < 2; s++) {
+      miniTypes.forEach(t => {
+        const d = document.createElement('div');
+        d.className = `mini-card mc-${t}`;
+        track.appendChild(d);
+      });
+    }
+
+    // ── カードアニメーション ──
+    const cards = [
+      { id: 'card-haku', foilId: 'foil-haku', label: 'haku', textureOpacity: 0.06 },
+      { id: 'card-en',   foilId: 'foil-en',   label: 'en',   textureOpacity: 0.04 },
+      { id: 'card-kiza', foilId: 'foil-kiza',  label: 'kiza', textureOpacity: 0.08 }
+    ];
+
+    const CYCLE = 3600; // ms per card
+    const TOTAL = CYCLE * cards.length;
+
+    const dots = document.querySelectorAll('.step-dot');
+    const processLabel = document.getElementById('processLabel');
+    const miniCards = document.querySelectorAll('.mini-card');
+
+    function setActive(cardIdx, stepIdx) {
+      dots.forEach((d, i) => {
+        d.classList.toggle('active', i === stepIdx);
+      });
+      processLabel.textContent = cards[cardIdx].label;
+      miniCards.forEach((mc, i) => {
+        mc.classList.toggle('active', i % cards.length === cardIdx || (i % cards.length) + cards.length === cardIdx);
+      });
+    }
+
+    function animateCard(cardIdx) {
+      const cfg = cards[cardIdx];
+      const card = document.getElementById(cfg.id);
+      const foil = document.getElementById(cfg.foilId);
+      const texture = card.querySelector('.card-texture');
+      const processLayer = card.querySelector('.card-process-layer');
+      const emboss = card.querySelector('.emboss-line');
+      const cardText = card.querySelector('.card-text');
+
+      // リセット
+      card.style.transition = 'none';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(2.4)';
+      texture.style.opacity = '0';
+      processLayer.style.opacity = '0';
+      cardText.style.opacity = '0';
+      foil.style.opacity = '0';
+      foil.style.transition = 'none';
+      foil.style.transform = 'translateX(-100%)';
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+
+        // ① テクスチャ ズームイン + フェードイン
+        setActive(cardIdx, 0);
+        card.style.transition = 'opacity 0.7s ease, transform 2.8s cubic-bezier(.16,1,.3,1)';
+        card.style.opacity = '1';
+        card.style.transform = 'scale(1)';
+        texture.style.transition = 'opacity 0.8s ease';
+        texture.style.opacity = '1';
+
+        // ② 加工エフェクト
+        setTimeout(() => {
+          setActive(cardIdx, 1);
+          processLayer.style.transition = 'opacity 0.5s ease';
+          processLayer.style.opacity = '1';
+          emboss.style.opacity = '1';
+
+          // 箔スイープ
+          foil.style.opacity = '1';
+          foil.style.transition = 'transform 0.7s ease';
+          foil.style.transform = 'translateX(200%)';
+        }, 700);
+
+        // ③ テキスト刻まれる
+        setTimeout(() => {
+          setActive(cardIdx, 2);
+          cardText.style.transition = 'opacity 0.7s ease';
+          cardText.style.opacity = '1';
+        }, 1500);
+
+        // ④ ズームアウト完了（名刺完成）
+        setTimeout(() => {
+          setActive(cardIdx, 3);
+        }, 2400);
+
+        // ⑤ フェードアウト
+        setTimeout(() => {
+          card.style.transition = 'opacity 0.5s ease';
+          card.style.opacity = '0';
+          cardText.style.transition = 'opacity 0.4s ease';
+          cardText.style.opacity = '0';
+          processLayer.style.transition = 'opacity 0.4s ease';
+          processLayer.style.opacity = '0';
+        }, CYCLE - 400);
+
+      }));
+    }
+
+    // ── シーケンス管理 ──
+    let currentCard = 0;
+    let startTime = null;
+    let started = false;
+
+    function startSequence() {
+      if (started) return;
+      started = true;
+      runCard(0);
+    }
+
+    function runCard(idx) {
+      animateCard(idx);
+      setTimeout(() => {
+        const next = (idx + 1) % cards.length;
+        runCard(next);
+      }, CYCLE);
+    }
+
+    // ページ表示後少し待ってから開始
+    setTimeout(startSequence, 600);
+  </script>
+</body>
+</html>
