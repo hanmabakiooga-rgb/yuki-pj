@@ -1,0 +1,300 @@
+/* =========================================================
+   HeroSection — styles
+   -----------------------------------------------------------
+   Tuning guide:
+   - `--stage-max` controls the max width of the film frame.
+   - `--pad-y` / `--pad-x` control the section padding.
+   - All animations respect prefers-reduced-motion at the bottom.
+   ========================================================= */
+
+.hero {
+  /* layout */
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  /* paper-feel canvas */
+  background: var(--kamito-bg);
+  color: var(--kamito-ink);
+
+  /* breathing room — scales with viewport */
+  --pad-y: clamp(88px, 10vh, 140px);
+  --pad-x: clamp(20px, 5vw, 64px);
+  padding: var(--pad-y) var(--pad-x);
+
+  /* quiet fade-in for the whole section */
+  animation: kamitoFadeIn 1.2s ease-out both;
+}
+
+/* Wordmark in the corner — letterhead-style identifier. */
+.wordmark {
+  position: absolute;
+  top: clamp(24px, 4vw, 40px);
+  left: clamp(24px, 4vw, 48px);
+  margin: 0;
+  font-family: var(--kamito-sans-font, var(--kamito-sans));
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--kamito-ink-quiet);
+  z-index: 2;
+}
+
+/* Content column — video + copy stacked with generous gap. */
+.inner {
+  width: 100%;
+  max-width: 1240px;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: clamp(40px, 6vw, 72px);
+}
+
+/* ----- Film stage ------------------------------------------------ */
+
+.stage {
+  /* frame size — large on desktop, contained with margin */
+  --stage-max: 1100px;
+  position: relative;
+  width: 100%;
+  max-width: var(--stage-max);
+  margin: 0;
+  aspect-ratio: 16 / 9;
+
+  /* subtle paper-tone placeholder behind the poster while it loads */
+  background-color: #eeebe2;
+  border-radius: 2px;
+  overflow: hidden;
+
+  /* very soft elevation — never harsh */
+  box-shadow:
+    0 40px 90px -50px rgba(40, 36, 28, 0.22),
+    0 8px 18px -10px rgba(40, 36, 28, 0.08);
+
+  /* delayed fade-in so the film feels like it "arrives" */
+  animation: kamitoRise 1.6s 0.2s ease-out both;
+}
+
+.video,
+.fallbackImg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* Because the stage matches the video's 16:9 ratio, `cover` is
+     safe here — it won't crop away meaningful content. */
+  object-fit: cover;
+  object-position: center;
+}
+
+/* When the <video> can't render, the inner <img> fallback shows. */
+.fallbackImg {
+  position: absolute;
+  inset: 0;
+}
+
+/* ----- Copy block ------------------------------------------------ */
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+  max-width: 620px;
+
+  /* arrives slightly after the film */
+  animation: kamitoRise 1.8s 0.45s ease-out both;
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-weight: 300;
+  font-size: clamp(28px, 3.8vw, 46px);
+  line-height: 1.22;
+  letter-spacing: 0.015em;
+  color: var(--kamito-ink);
+}
+
+.subtext {
+  margin: 0;
+  max-width: 44ch;
+  font-size: clamp(13px, 1.05vw, 15px);
+  line-height: 1.95;
+  letter-spacing: 0.06em;
+  color: var(--kamito-ink-soft);
+  font-weight: 400;
+}
+
+/* ----- CTA ------------------------------------------------------- */
+/* A thin, quiet link with an animated underline. No filled button —
+   that would feel like a conversion LP. */
+
+.cta {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 2px 8px;
+  text-decoration: none;
+  color: var(--kamito-ink);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  position: relative;
+}
+
+/* animated underline — grows from left on hover */
+.cta::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 1px;
+  background: var(--kamito-ink);
+  transform: scaleX(1);
+  transform-origin: right center;
+  transition: transform 520ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.cta:hover::after,
+.cta:focus-visible::after {
+  transform: scaleX(0.55);
+  transform-origin: left center;
+}
+
+.ctaArrow {
+  display: inline-block;
+  transition: transform 420ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.cta:hover .ctaArrow,
+.cta:focus-visible .ctaArrow {
+  transform: translateX(4px);
+}
+
+/* ----- Decorative terminator ------------------------------------- */
+
+.terminator {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(24px, 4vh, 48px);
+  width: 1px;
+  height: 36px;
+  background: var(--kamito-line);
+  transform: translateX(-50%);
+  opacity: 0.9;
+}
+
+/* =========================================================
+   Motion primitives
+   ========================================================= */
+
+@keyframes kamitoFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes kamitoRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   Responsive
+   -----------------------------------------------------------
+   Goal: don't let any breakpoint crush the film or the copy.
+   ========================================================= */
+
+/* Tablet — keep generous margin, slightly smaller frame. */
+@media (max-width: 1024px) {
+  .stage {
+    --stage-max: 860px;
+  }
+}
+
+/* Mobile — relax the full viewport height so the copy is
+   visible above the fold instead of pushed offscreen. */
+@media (max-width: 720px) {
+  .hero {
+    --pad-y: clamp(96px, 14vh, 120px);
+    min-height: auto;
+  }
+
+  .inner {
+    gap: 36px;
+  }
+
+  .stage {
+    --stage-max: 100%;
+    /* slightly softer shadow on mobile so it doesn't feel heavy */
+    box-shadow:
+      0 24px 50px -32px rgba(40, 36, 28, 0.2),
+      0 4px 10px -6px rgba(40, 36, 28, 0.06);
+  }
+
+  .wordmark {
+    /* center the wordmark on narrow screens so it reads as a header */
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+
+  .headline {
+    font-size: clamp(22px, 6.2vw, 30px);
+    letter-spacing: 0.02em;
+  }
+
+  .subtext {
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  .cta {
+    font-size: 11px;
+    letter-spacing: 0.28em;
+  }
+
+  .terminator {
+    display: none;
+  }
+}
+
+/* Very narrow (small phones) — tighten side padding a touch. */
+@media (max-width: 380px) {
+  .hero {
+    --pad-x: 16px;
+  }
+}
+
+/* =========================================================
+   Reduced motion — respect user preference.
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .stage,
+  .copy {
+    animation: none;
+  }
+  .cta::after,
+  .ctaArrow {
+    transition: none;
+  }
+}

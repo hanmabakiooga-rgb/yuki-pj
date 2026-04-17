@@ -1,0 +1,60 @@
+/* =========================================================
+   KAMITO — global baseline
+   Minimal, quiet, white-based.
+   Keep this file small on purpose. Most styling lives
+   inside each component's CSS module.
+   ========================================================= */
+
+:root {
+  /* Color tokens — soft off-white paper feel */
+  --kamito-bg: #f7f5f0;          /* page background (slightly warm off-white) */
+  --kamito-surface: #ffffff;     /* surfaces slightly lighter than bg */
+  --kamito-ink: #1f1d1a;         /* primary text */
+  --kamito-ink-soft: #6b6960;    /* secondary text */
+  --kamito-ink-quiet: #9a978d;   /* tertiary / eyebrow text */
+  --kamito-line: #e7e3d9;        /* hairline dividers */
+
+  /* Type scale helpers */
+  --kamito-serif: "Cormorant Garamond", "Noto Serif JP", Georgia,
+    "Times New Roman", serif;
+  --kamito-sans: "Inter", "Helvetica Neue", Helvetica, "Hiragino Sans",
+    "Yu Gothic", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--kamito-bg);
+  color: var(--kamito-ink);
+  font-family: var(--kamito-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100svh;
+}
+
+/* Remove default focus outline only when a mouse user focuses — keyboard
+   users still get a clear ring from browser defaults. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}

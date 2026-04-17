@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  KAMITO — placeholder poster / fallback image.
+  Replace with a still frame from the final mp4 (kamito-hero-poster.jpg
+  at ~1920x1080, sRGB, 70–80 quality) for a tighter match.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" role="img" aria-label="KAMITO">
+  <defs>
+    <radialGradient id="paper" cx="50%" cy="46%" r="72%">
+      <stop offset="0%"  stop-color="#fbfaf5"/>
+      <stop offset="60%" stop-color="#f2efe6"/>
+      <stop offset="100%" stop-color="#e8e4d8"/>
+    </radialGradient>
+    <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#cfcab8" stop-opacity="0.18"/>
+    </linearGradient>
+  </defs>
+
+  <!-- paper base -->
+  <rect width="1920" height="1080" fill="url(#paper)"/>
+  <rect width="1920" height="1080" fill="url(#shade)"/>
+
+  <!-- faint hairline, as if the poster frame has been scored -->
+  <line x1="860" y1="880" x2="1060" y2="880" stroke="#b8b3a3" stroke-width="1" opacity="0.55"/>
+
+  <!-- quiet wordmark — small, centered, spaced out -->
+  <text x="960" y="560"
+        fill="#6b6960"
+        font-family="Cormorant Garamond, Georgia, serif"
+        font-size="64"
+        font-weight="300"
+        letter-spacing="22"
+        text-anchor="middle">
+    KAMITO
+  </text>
+</svg>
