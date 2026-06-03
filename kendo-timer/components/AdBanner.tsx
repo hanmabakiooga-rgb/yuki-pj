@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { BANNER_UNIT_ID } from '../constants/ads';
 import { Colors } from '../constants/colors';
+import { isExpoGo } from '../constants/environment';
 
 /**
  * 画面下部の AdMob バナー広告（PRD 1：収益化）。
@@ -21,16 +22,19 @@ let GoogleAds: {
   BannerAd: React.ComponentType<{ unitId: string; size: string }>;
   BannerAdSize: { ADAPTIVE_BANNER: string; BANNER: string };
 } | null = null;
-try {
-  // 開発ビルド時のみ解決される。Expo Go では catch される。
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const mod = require('react-native-google-mobile-ads');
-  GoogleAds = {
-    BannerAd: mod.BannerAd,
-    BannerAdSize: mod.BannerAdSize,
-  };
-} catch {
-  GoogleAds = null;
+// Expo Go では require した時点でネイティブにアクセスしてクラッシュするため、
+// 開発ビルド／本番ビルドでのみ require する。
+if (!isExpoGo) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require('react-native-google-mobile-ads');
+    GoogleAds = {
+      BannerAd: mod.BannerAd,
+      BannerAdSize: mod.BannerAdSize,
+    };
+  } catch {
+    GoogleAds = null;
+  }
 }
 
 export function AdBanner(_props: AdBannerProps) {
