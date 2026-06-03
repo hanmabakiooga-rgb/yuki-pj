@@ -1,18 +1,40 @@
+import { useIsFocused } from '@react-navigation/native';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import { useKeepAwake } from 'expo-keep-awake';
-import * as MediaLibrary from 'expo-media-library';
-import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AdBanner } from '../components/AdBanner';
 import { BigButton } from '../components/BigButton';
 import { TimerDisplay } from '../components/TimerDisplay';
 import { Colors } from '../constants/colors';
+import { isExpoGo } from '../constants/environment';
 import { useRecordingConfig } from '../contexts/RecordingContext';
 import { useTimer } from '../hooks/useTimer';
 import { useVolumeButton } from '../hooks/useVolumeButton';
+
+/**
+ * expo-media-library の遅延ロード。
+ *
+ * expo-media-library は読み込み時に新 API 用ネイティブモジュール
+ * `ExpoMediaLibraryNext` を要求するが、これは Expo Go には含まれず例外になる。
+ * そのため Expo Go では一切読み込まず（録画の保存はスキップ）、開発ビルド／
+ * 本番ビルドでのみ require する。
+ */
+type MediaLibraryModule = typeof import('expo-media-library');
+let mediaLibraryCache: MediaLibraryModule | null | undefined;
+function loadMediaLibrary(): MediaLibraryModule | null {
+  if (isExpoGo) return null;
+  if (mediaLibraryCache !== undefined) return mediaLibraryCache;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    mediaLibraryCache = require('expo-media-library') as MediaLibraryModule;
+  } catch {
+    mediaLibraryCache = null;
+  }
+  return mediaLibraryCache;
+}
 
 /** params の "1"/"0" 文字列を boolean に変換 */
 function parseFlag(value: string | string[] | undefined): boolean {
@@ -59,15 +81,28 @@ export default function TimerScreen() {
   const cameraRef = useRef<CameraView>(null);
   const [camPerm] = useCameraPermissions();
   const [micPerm] = useMicrophonePermissions();
-  const [mediaPerm, requestMediaPerm] = MediaLibrary.usePermissions();
+  const [mediaGranted, setMediaGranted] = useState(false);
   const isRecordingRef = useRef(false);
 
+  // 録画 ON かつ Expo Go 以外のときだけ、メディアライブラリの保存権限を要求。
   useEffect(() => {
     if (!recordingEnabled) return;
-    if (mediaPerm && !mediaPerm.granted && mediaPerm.canAskAgain) {
-      requestMediaPerm().catch(() => {});
-    }
-  }, [recordingEnabled, mediaPerm, requestMediaPerm]);
+    const ML = loadMediaLibrary();
+    if (!ML) return; // Expo Go では保存不可（録画自体は可能）
+    (async () => {
+      try {
+        const current = await ML.getPermissionsAsync();
+        if (current.granted) {
+          setMediaGranted(true);
+        } else if (current.canAskAgain) {
+          const next = await ML.requestPermissionsAsync();
+          setMediaGranted(next.granted);
+        }
+      } catch {
+        // 取得失敗時は保存をスキップする。
+      }
+    })();
+  }, [recordingEnabled]);
 
   // 録画停止 → カメラロール保存。AlertScreen 遷移と画面離脱の両方からも呼ばれる。
   const stopRecordingAndSave = useCallback(async () => {
@@ -123,22 +158,20 @@ export default function TimerScreen() {
       isRecordingRef.current = false;
       const uri = result?.uri;
       if (!uri) return;
-      // 権限があればカメラロールへ保存。
-      if (mediaPerm?.granted) {
+      // 権限があればカメラロールへ保存（Expo Go では ML=null でスキップ）。
+      const ML = loadMediaLibrary();
+      if (ML && mediaGranted) {
         try {
-          await MediaLibrary.saveToLibraryAsync(uri);
-          setConfig({ lastSavedUri: uri });
+          await ML.saveToLibraryAsync(uri);
         } catch {
           // 保存失敗時は uri のみ保持。
-          setConfig({ lastSavedUri: uri });
         }
-      } else {
-        setConfig({ lastSavedUri: uri });
       }
+      setConfig({ lastSavedUri: uri });
     } catch {
       isRecordingRef.current = false;
     }
-  }, [recordingEnabled, camPerm, mediaPerm, setConfig]);
+  }, [recordingEnabled, camPerm, mediaGranted, setConfig]);
 
   // 権限・カメラ準備が整い次第、録画を開始する。
   useEffect(() => {

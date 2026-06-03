@@ -174,7 +174,11 @@ TimerScreen ──[0秒到達]──▶ AlertScreen
 
 ## 既知の注意点
 
-- **Expo Go 限定**：AdMob・録画・torch・音量ボタンは Expo Go では動作しない（開発ビルドが必須）
+- **Expo Go 限定**：AdMob・torch（フラッシュ）・音量ボタン・録画保存は Expo Go では無効（開発ビルドが必須）
+- **expo-media-library と Expo Go**：`expo-media-library` は読み込み時に新 API 用ネイティブモジュール
+  `ExpoMediaLibraryNext` を要求するが、これは Expo Go バイナリに含まれずクラッシュする。
+  そのため `app/timer.tsx` では静的 import せず、**Expo Go では一切ロードしない遅延 require**
+  にしている（録画自体は可能だがカメラロール保存はスキップ）。完全な保存機能は開発ビルドで動作。
 - **`expo-av` → `expo-audio`**：旧 API（`expo-av`）の非推奨化に追随して新 API（`expo-audio`）を採用
 - **AdMob 本番 ID**：`constants/ads.ts` と `app.json` の AdMob App ID は **必ず** 本番値へ差し替えてからストア提出すること（テスト ID で公開すると規約違反）
 - **Bundle ID**：`com.example.kendotimer` はサンプル値。実際の所有ドメインに置き換える
