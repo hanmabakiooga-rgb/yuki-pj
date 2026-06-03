@@ -1,4 +1,5 @@
-import { useIsFocused, useRouter } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   Pressable,

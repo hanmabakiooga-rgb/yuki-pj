@@ -1,7 +1,8 @@
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import { useKeepAwake } from 'expo-keep-awake';
 import * as MediaLibrary from 'expo-media-library';
-import { useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

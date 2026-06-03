@@ -1,7 +1,8 @@
+import { useIsFocused } from '@react-navigation/native';
 import * as Brightness from 'expo-brightness';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useKeepAwake } from 'expo-keep-awake';
-import { useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../constants/colors';

@@ -3,7 +3,7 @@
 少人数・仲間内の剣道稽古向けタイマー。防具（面）着用中でも気づけるよう、
 **画面の赤黒点滅・カメラLEDフラッシュ・ビープ音**による多重通知を備える。
 
-- スタック: React Native (Expo SDK 56) + TypeScript (strict)
+- スタック: React Native (Expo SDK 53) + TypeScript (strict)
 - ナビゲーション: expo-router
 - 対象: iOS（必須）/ iPad（推奨）/ Android（対応予定）
 
@@ -13,8 +13,13 @@
 
 ```bash
 cd kendo-timer
-npm install --legacy-peer-deps   # Expo SDK 56 + react-native-worklets の peer 競合回避
+npm install --legacy-peer-deps   # Expo の peer 依存回避（任意）
 ```
+
+> **Expo Go の対応バージョン**: SDK 53。Android の Google Play ストアで「Expo Go」
+> をインストールするか、最新版が入らない端末は
+> [github.com/expo/expo/releases](https://github.com/expo/expo/releases) から
+> Expo Go の APK を直接ダウンロードできる。
 
 > Expo Go の制限：物理音量ボタン検知 / 輝度制御 / カメラ torch /
 > AdMob / 録画はネイティブ機能のため、Expo Go では完全動作しません。
@@ -57,7 +62,7 @@ npx expo start --dev-client
 - **カメラ LED フラッシュ点滅**: `expo-camera` の `enableTorch` を 50ms ごとにトグル（全体 0.1秒周期）
   - 実機が 0.1 秒周期に追いつかない場合は `useFlash(active, 100)` を渡して 0.2 秒へフォールバック可能
 - **ビープ音**: `expo-audio` の `useAudioPlayer` で `assets/beep.mp3` を 600ms 間隔で再生、`volume=1.0` 強制
-  - 注：PRD は `expo-av` 指定だが、Expo SDK 56 で非バンドル化されたため `expo-audio` を使用
+  - 注：PRD は `expo-av` 指定だが、最新 API への移行を見越して `expo-audio` を使用
   - サイレントスイッチでも鳴るよう `setAudioModeAsync({ playsInSilentMode: true })`
 - **超過時間カウントアップ**: `+MM:SS` 形式で最大 10 分（10:00 到達で強制終了）
 - **自動終了**: 通知（点滅・フラッシュ・ビープ）は 1 分継続後に自動停止
@@ -170,7 +175,7 @@ TimerScreen ──[0秒到達]──▶ AlertScreen
 ## 既知の注意点
 
 - **Expo Go 限定**：AdMob・録画・torch・音量ボタンは Expo Go では動作しない（開発ビルドが必須）
-- **`expo-av` → `expo-audio`**：SDK 56 で `expo-av` がバンドル外となったため `expo-audio` を採用
+- **`expo-av` → `expo-audio`**：旧 API（`expo-av`）の非推奨化に追随して新 API（`expo-audio`）を採用
 - **AdMob 本番 ID**：`constants/ads.ts` と `app.json` の AdMob App ID は **必ず** 本番値へ差し替えてからストア提出すること（テスト ID で公開すると規約違反）
 - **Bundle ID**：`com.example.kendotimer` はサンプル値。実際の所有ドメインに置き換える
 - **音量ボタン検知の挙動**：押下時に内部で音量を 0.5 に戻す方式（端の値に張り付くと検知不能になるため）。ユーザーが意図的に音量を変更しても押下扱いになる点に留意
