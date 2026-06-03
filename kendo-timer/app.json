@@ -7,24 +7,71 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "plugins": [
-      "expo-router"
-    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.kendotimer",
+      "infoPlist": {
+        "NSCameraUsageDescription": "終了通知時のフラッシュ点滅、稽古動画の録画にカメラを使用します。",
+        "NSMicrophoneUsageDescription": "稽古動画の音声録音にマイクを使用します。",
+        "NSPhotoLibraryAddUsageDescription": "録画した稽古動画を写真ライブラリに保存します。"
+      }
     },
     "android": {
+      "package": "com.example.kendotimer",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "終了通知時のフラッシュ点滅、稽古動画の録画にカメラを使用します。",
+          "microphonePermission": "稽古動画の音声録音にマイクを使用します。",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "録画した稽古動画を写真ライブラリに保存します。",
+          "savePhotosPermission": "録画した稽古動画を写真ライブラリに保存します。",
+          "isAccessMediaLocationEnabled": false
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "稽古動画の音声録音にマイクを使用します。"
+        }
+      ],
+      [
+        "expo-brightness",
+        {}
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "userTrackingPermission": "広告のパーソナライズに使用される場合があります。"
+        }
+      ]
+    ]
   }
 }

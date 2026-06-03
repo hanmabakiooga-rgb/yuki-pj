@@ -1,7 +1,16 @@
 import { useIsFocused, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AdBanner } from '../components/AdBanner';
 import { BigButton } from '../components/BigButton';
 import {
   DEFAULT_NOTIFICATION_SETTINGS,
@@ -10,6 +19,7 @@ import {
 } from '../components/NotificationToggles';
 import { TimerDisplay } from '../components/TimerDisplay';
 import { Colors } from '../constants/colors';
+import { useRecordingConfig } from '../contexts/RecordingContext';
 import { useVolumeButton } from '../hooks/useVolumeButton';
 
 const MAX_SECONDS = 99 * 60 + 59; // MM:SS の表示上限（99:59）
@@ -23,11 +33,14 @@ const ADD_BUTTONS: { label: string; seconds: number }[] = [
 
 /**
  * SetupScreen（設定・スタート画面）— PRD 3-1。
- * 時間設定 / 通知トグル / 始め（タップ・音量ボタン）を担う。
+ * 時間設定 / 通知トグル / 録画トグル / 始め（タップ・音量ボタン）を担う。
+ * iPad 幅では中央寄せ＋大きめのコンテンツに自動調整する。
  */
 export default function SetupScreen() {
   const router = useRouter();
   const isFocused = useIsFocused();
+  const { width } = useWindowDimensions();
+  const { config: recording, setConfig: setRecording } = useRecordingConfig();
 
   const [seconds, setSeconds] = useState(0);
   const [notifications, setNotifications] = useState<NotificationSettings>(
@@ -57,10 +70,26 @@ export default function SetupScreen() {
   // 音量ボタン（Up/Down）でも開始。設定画面が前面のときだけ反応させる。
   useVolumeButton(start, isFocused && seconds > 0);
 
+  // 録画トグル ON → CameraSetupScreen へ。OFF にしたら設定もクリア。
+  const onToggleRecording = (next: boolean) => {
+    if (next) {
+      router.push('/camera-setup');
+    } else {
+      setRecording({ enabled: false });
+    }
+  };
+
+  // iPad 等の広い画面ではコンテンツを中央寄せして最大幅を制限。
+  const isWide = width >= 768;
+  const contentMaxWidth = isWide ? 540 : undefined;
+
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          contentMaxWidth ? { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' } : null,
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>剣道タイマー</Text>
@@ -98,19 +127,34 @@ export default function SetupScreen() {
         <Text style={styles.sectionLabel}>通知方法</Text>
         <NotificationToggles value={notifications} onChange={setNotifications} />
 
-        {/* 録画（Phase 3 で実装予定。レイアウト確認用に無効表示） */}
+        {/* 録画 */}
         <View style={styles.recordRow}>
           <View style={styles.recordLabelWrap}>
             <Text style={styles.recordLabel}>録画</Text>
-            <Text style={styles.phaseBadge}>Phase 3</Text>
+            {recording.enabled ? (
+              <Text style={styles.facingBadge}>
+                {recording.facing === 'back' ? '外カメラ' : 'インカメ'}
+                {recording.zoom > 0 ? ` / ズーム ${recording.zoom.toFixed(2)}` : ''}
+              </Text>
+            ) : null}
           </View>
           <Switch
-            value={false}
-            disabled
+            value={recording.enabled}
+            onValueChange={onToggleRecording}
             trackColor={{ false: Colors.toggleOff, true: Colors.toggleOn }}
-            thumbColor={Colors.textMuted}
+            thumbColor={Colors.text}
           />
         </View>
+        {recording.enabled ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="録画設定を変更"
+            onPress={() => router.push('/camera-setup')}
+            style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
+          >
+            <Text style={styles.linkText}>録画設定を変更</Text>
+          </Pressable>
+        ) : null}
 
         {/* 始め */}
         <BigButton
@@ -122,12 +166,17 @@ export default function SetupScreen() {
           style={styles.startButton}
         />
         <Text style={styles.hint}>音量ボタン（上下どちらでも）でも開始できます</Text>
+
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => router.push('/privacy')}
+          style={({ pressed }) => [styles.privacyLink, pressed && styles.pressed]}
+        >
+          <Text style={styles.privacyLinkText}>プライバシーポリシー</Text>
+        </Pressable>
       </ScrollView>
 
-      {/* 広告バナー（Phase 4 で AdMob 実装予定） */}
-      <View style={styles.adBanner}>
-        <Text style={styles.adBannerText}>広告バナー（Phase 4）</Text>
-      </View>
+      <AdBanner placement="setup" />
     </SafeAreaView>
   );
 }
@@ -195,24 +244,26 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   recordLabelWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    flexShrink: 1,
+    gap: 4,
   },
   recordLabel: {
     color: Colors.text,
     fontSize: 18,
     fontWeight: '600',
   },
-  phaseBadge: {
+  facingBadge: {
     color: Colors.textMuted,
     fontSize: 12,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 6,
-    overflow: 'hidden',
+  },
+  linkRow: {
+    paddingHorizontal: 8,
+    marginTop: -8,
+  },
+  linkText: {
+    color: Colors.accent,
+    fontSize: 13,
+    fontWeight: '600',
   },
   startButton: {
     marginTop: 4,
@@ -222,16 +273,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'center',
   },
-  adBanner: {
-    height: 50,
-    backgroundColor: Colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
+  privacyLink: {
+    alignSelf: 'center',
+    paddingVertical: 8,
   },
-  adBannerText: {
+  privacyLinkText: {
     color: Colors.textMuted,
     fontSize: 12,
+    textDecorationLine: 'underline',
   },
 });

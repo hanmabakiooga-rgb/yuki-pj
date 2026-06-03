@@ -30,14 +30,13 @@ interface Row {
 
 const ROWS: Row[] = [
   { key: 'screen', label: 'スクリーン' },
-  { key: 'flash', label: 'フラッシュ', note: 'Phase 2' },
-  { key: 'beep', label: 'ビープ音', note: 'Phase 2' },
+  { key: 'flash', label: 'フラッシュ' },
+  { key: 'beep', label: 'ビープ音' },
 ];
 
 /**
  * 通知方法（スクリーン/フラッシュ/ビープ音）のトグル群。
- * Phase 1 で実機動作するのはスクリーン点滅のみ。フラッシュ・ビープは
- * 設定状態を保持しつつ、効果は Phase 2 で実装する。
+ * いずれも実機ビルドで AlertScreen 表示時に有効になる。
  */
 export function NotificationToggles({ value, onChange }: NotificationTogglesProps) {
   return (

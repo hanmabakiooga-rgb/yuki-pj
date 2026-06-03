@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Colors } from '../constants/colors';
 import { formatMMSS } from '../constants/time';
 
@@ -14,13 +14,18 @@ interface TimerDisplayProps {
 /**
  * MM:SS を大きなフォントで表示する（PRD: 視認性優先）。
  * 等幅数字でカウント中のガタつきを防ぐ。
+ * 画面幅に応じてフォントサイズをスケール（iPad で大きく）。
  */
 export function TimerDisplay({ seconds, prefix = '', color }: TimerDisplayProps) {
+  const { width } = useWindowDimensions();
+  // iPhone: 96 / iPad (>=768): 160 / 大型 iPad (>=1024): 200
+  const fontSize = width >= 1024 ? 200 : width >= 768 ? 160 : 96;
+
   return (
     <View style={styles.container}>
       <Text
         accessibilityRole="text"
-        style={[styles.text, color ? { color } : null]}
+        style={[styles.text, { fontSize }, color ? { color } : null]}
         allowFontScaling={false}
       >
         {prefix}
@@ -37,7 +42,6 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Colors.text,
-    fontSize: 96,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
     letterSpacing: 2,
