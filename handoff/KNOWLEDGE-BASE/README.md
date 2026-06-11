@@ -21,6 +21,9 @@
 | `08-kawasaki-perspective.md` | 川崎さんの個人的な考え方・カラーリストとしての哲学 |
 | `09-customer-personas.md` | 想定顧客像（年代・悩み・生活パターン） |
 | `10-do-and-dont-language.md` | 言ってOKな表現・NGな表現（薬機法配慮） |
+| `11-professional-products.md` | プロ用商材の知識（FOLLOWの強み2に直結） |
+| `12-scalp-care.md` | 頭皮ケアの専門知識（FOLLOWの強み3に直結） |
+| `13-self-color-safety.md` | プロ用商材×自宅の安全運用（強み1×2を実装） |
 
 ---
 
