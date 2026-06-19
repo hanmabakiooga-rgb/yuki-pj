@@ -1,6 +1,7 @@
 # FOLLOW 7エージェント仕様書
 
-作成日: 2026-06-10（v2: 2026-06-10 エージェントG追加）
+作成日: 2026-06-10（v2: 2026-06-10 エージェントG追加 / v3: 2026-06-18 SNS戦略確定版を反映）
+最終更新: 2026-06-18
 目的: ユーザーは「レビューと決済」のみ、Claudeが7エージェントを並列稼働させてFOLLOWの経営代行を行う。
 
 **v2変更点**: エージェントG（SNSインテリジェンス）を追加。Aの上流に立ち、リアルタイム動向をAに供給。詳細は `AGENT-G-SNS-INTEL.md`。
@@ -74,10 +75,46 @@ A:SNS  B:LINE C:広告 D:コード E:法務  F:分析
 ## 2. エージェントA：SNS生成
 
 ### 役割
-X（Twitter）・Instagram の投稿案を作成。
+HEJ（@hej.haircolor.treatment.rab・既存781フォロワー）と FOLLOW公式（@kokodake2026・新規）の2アカウント体制で、Threads / Instagram Feed / Reels / note の投稿案を作成。
+
+詳細なアカウント役割分担・自動化仕様は `handoff/SNS-STRATEGY-FINAL.md` を参照（最上位判断基準）。
+
+### 3つの運用モード（SNS-STRATEGY-FINAL.md §7 準拠）
+
+#### モードA: HEJ-Threads（手動または半自動）
+- 対象アカウント: **HEJ**（@hej.haircolor.treatment.rab）
+- 頻度: 週3-4投稿
+- トーン: 川崎個人の声、業界話・哲学・カラー知識
+- リズム: 2日に1回 FOLLOW誘導投稿を混ぜる（月・水・金・日）、火・木・土は業界話
+- 承認: 川崎さんレビュー必須
+
+#### モードB: 両アカウントReels（手動）
+- 対象アカウント: **HEJ** と **FOLLOW公式** 両方
+- 同じ動画ベースに、**冒頭2秒と末尾2秒（CTA）だけ差し替え**た2本を出力
+  - HEJ用: 冒頭「20年カラーリストが教える本音」／末尾「DMで質問OK」「プロフからFOLLOW」
+  - FOLLOW公式用: 冒頭「分け目だけ、染めればいい」／末尾「月880円・写真送るだけ・プロフのLINEから」
+- 編集: Vrew/CapCut
+
+#### モードC: FOLLOW-Threads（完全自動化）
+- 対象アカウント: **FOLLOW公式**（@kokodake2026）
+- 頻度: **1日3投稿**（朝7:30 / 昼12:30 / 夜21:00 JST）
+- 生成タイミング: 毎晩23:00 に翌日3投稿分を生成
+- フロー: A生成 → E法務チェック自動 → 合格分のみ D1 `sns_queue` に「scheduled」保存 → Workers Cron が Threads API で投稿
+- 投稿内容の配分:
+  - 朝7:30 → 教育・実践（薬剤の使い方・頭皮ケア知識・季節対策）
+  - 昼12:30 → 共感・コア訴求（気になるところだけ／月880円／FOLLOW案内）
+  - 夜21:00 → 川崎さんの哲学・利用者の声・呼びかけ
+- 管理者LINEには「明日の3投稿」サマリーのみ届く（中身は事後ログで確認）
+- 緊急停止: 管理者LINEから `stop_auto_posting` コマンド、または異常検知（同一文言3回連続・API失敗）で自動停止
+- 関連D Issue: #8（Threads自動投稿パイプライン）/ #9（sns_queue D1テーブル + 管理画面）
+
+#### モードD: note（川崎個人、月1-2本）
+- 対象アカウント: HEJプロフから誘導
+- 川崎さんの編集レビュー必須
 
 ### 起動条件
-- 毎日朝の「おはよう」で当日＋翌日2日分を生成
+- 毎日朝の「おはよう」で当日＋翌日2日分を生成（モードA・B）
+- 毎晩23:00に翌日分3投稿を自動生成（モードC）
 - バックログが3日分を下回ったら追加生成
 
 ### 入力
@@ -104,9 +141,10 @@ X（Twitter）・Instagram の投稿案を作成。
 
 ### 必ず参照する一次情報源（優先順）
 1. `handoff/POSITIONING-FINAL.md`（**最終判断基準**、全出力の合否はここで決まる）
-2. `handoff/KNOWLEDGE-BASE/` 配下の全ファイル（投稿の根拠）
-3. `handoff/agent-outputs/G-competitive-intel-2026-06-10.md`（競合と空白市場）
-4. `handoff/agent-outputs/G-trend-report-2026-06-10.md`（SNSアルゴリズム）
+1. `handoff/SNS-STRATEGY-FINAL.md`（**最終判断基準**、アカウント運用・3モードの仕様はここで決まる）
+3. `handoff/KNOWLEDGE-BASE/` 配下の全ファイル（投稿の根拠）
+4. `handoff/agent-outputs/G-competitive-intel-2026-06-10.md`（競合と空白市場）
+5. `handoff/agent-outputs/G-trend-report-2026-06-10.md`（SNSアルゴリズム）
 
 ナレッジベースに無い情報は「推測しない」「触れない」「ユーザーに追加依頼」のいずれかを選ぶ。  
 POSITIONING-FINAL.md §11 の7軸に反するコピーは**全エージェント・全レビューで自動却下**。
