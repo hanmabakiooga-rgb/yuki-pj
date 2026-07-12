@@ -9,43 +9,41 @@
 
 ## ① LP改修（follow-lp）— ✅ 完了
 
-- 実装は `feat/lp-v2-visual-revamp` に3コミットで既に存在（前セッション/CODEXが `LP-V2-CODEX-PROMPT-V2-2026-07-11.md` に沿って実施済み）。本セッションで**検証 → PR作成 → main へマージ**まで完了。
+- 実装は `feat/lp-v2-visual-revamp` に3コミットで既に存在（前セッション/CODEXが実施済み）。本セッションで**検証 → PR作成 → main へマージ**まで完了。
 - PR: https://github.com/hanmabakiooga-rgb/follow-lp/pull/3 （**Merged**）
-- 対象リポジトリ: `C:\Users\hanma\OneDrive\ドキュメント\Playground\follow-lp`（origin: hanmabakiooga-rgb/follow-lp）
-- 検証結果:
-  - `npm install` / `npm run build` グリーン
-  - 受入基準すべて確認: FV文言「商材の購入は任意」/ FAQ「返信はいつ届きますか？(平日9:00〜19:00)」/ Metaピクセル(`META_PIXEL_ID_HERE` プレースホルダ, script/noscript) / `js/utm-tracking.js` / `css/lp-feature-icons.css`(dist で main-*.css にバンドル) / LINEボタン7箇所(href `https://lin.ee/pXAlGgw` 固定) / v2アイコン16個(dist 82ファイル, 404なし)
-  - 差分: 挿入2122・削除1（削除1 = fv-meta 行の置換のみ）。保護要素（川崎権威性/利用者の声/FV強調赤/LINE緑/既存CTA/main.js/既存トークン）は無傷
-- 残（スコープ外・別PR）: Meta Pixel ID発行後の一括置換、CTA画像6枚作り直し、川崎実写真差し替え、LINEボタン実機テスト
+- 検証: `npm install`/`npm run build` グリーン、全受入基準クリア（FV文言「商材の購入は任意」/ 営業時間FAQ / Metaピクセル(プレースホルダ) / UTM / lp-feature-icons.css / LINEボタン7箇所 / v2アイコン16個・dist 404なし）。差分は挿入2122・削除1のみで保護要素は無傷。
 
 ---
 
-## ② 500円キャンペーン GAS投入 — ⏸ 確認待ち（未実行）
+## ② 500円キャンペーン GAS投入 — ⚠️ 途中で重大な仕様不一致を発見・要判断
 
-指示: Main.gs末尾に §6 の `startCampaign500()`/`endCampaign500()` 追加、`sns_templates` に §2 の3行追加、`smokeTest()` で theme=campaign 確認、その後 `startCampaign500()` 実行（7日間の自動キャンペーン開始）。
+対象GASは **スタンドアロンプロジェクト「FOLLOW Threads Autopost」**（script.google.com、id `1fU3cSi8Y4pmghGID5BFHphlUfB1Yi3AamWRN1QMpQz08gqDWIOjIyWC7`）。
+※ FOLLOW-KPIスプレッドシートから「拡張機能→Apps Script」で開くと**空のバインドプロジェクト**が出るだけで、SNS自動投稿コードは無い（設計書 GAS-AUTOPOST-SYSTEM-DESIGN.md §7 の通りスタンドアロン）。Config.gs の `SPREADSHEET_ID` が FOLLOW-KPI（1Xshvq…）と一致することで正しいプロジェクトと確認。
 
-**状況・ブロッカー:**
-- FOLLOW SNS自動投稿の GAS プロジェクト（`sns_templates` / `startCampaign500` / `ContentGenerator`）の**ローカルソース（clasp）が存在しない**。`C:\Users\hanma\.vscode\ThreadsAnalytics` は別プロジェクト（予約Bot/分析）で該当せず。
-- したがって作業は**本番稼働中の FOLLOW-KPI Google Sheets のバインド GASエディタをブラウザで直接編集**する必要がある。GAS本体の編集・複数行セルの行追加・関数実行はブラウザのピクセル操作になり、失敗すると日次自動投稿の停止や KillSwitch 誤作動（§5ケースC）につながるリスクがある。
-- `startCampaign500()` は**7日間の公開自動投稿を開始し、既存21テンプレを停止、管理者LINEに通知が飛ぶ取り消し困難な外部影響アクション**。
+### 実施済み（安全な状態）
+- ✅ Main.gs 末尾に `startCampaign500()` / `endCampaign500()`（設計書§6の通り）＋ 一度用ヘルパー `addCampaign500Templates()` を貼り付け・保存（構文エラーなし、3関数とも関数一覧に認識）。
+- ✅ `addCampaign500Templates()` 実行 → `sns_templates` にキャンペーン3行（camp500_morn/noon/night_001、theme=campaign、active=TRUE、use_count=0）を追加（ログ: `3 rows added, skipped 0`）。既存データは無変更。
 
-→ 実行前にユーザー確認が必要（下記「確認事項」）。
+### 🚫 startCampaign500() は未実行（意図的に停止）
+- `smokeTest()` 実行結果: `[ContentGenerator] AI生成成功 slot=morning` → `[6] Gen morning: …(theme=ai_education)`。**theme=campaign が出なかった。**
+- 原因: このシステムは **`USE_AI_GENERATION=true`（Script Property、ANTHROPIC_API_KEY 設定済み）で稼働**しており、日次投稿は `generateWithAI()`（実LLM生成）を使う。設計書§3/§6が前提とする `generateFromTemplate()`（sns_templates の use_count 選択）は**使われていない**。
+- 従って、追加したキャンペーンテンプレも startCampaign500 のテンプレ停止処理も**日次投稿に反映されない**。startCampaign500 を実行しても 500円キャンペーン文言は毎日流れず、既存テンプレのactiveだけ落ちる（AI生成は継続）。
+- ユーザー様の実行条件「③まで確認できたら（theme=campaign確認）startCampaign500 を実行」も満たさないため、**実行せず停止し、判断を仰ぐ**。
+
+### 選択肢（要ユーザー判断）
+- **案A（推奨・設計意図に合致）**: キャンペーン期間中だけ Script Property `USE_AI_GENERATION` を `false` にする → 日次投稿が generateFromTemplate に切替 → startCampaign500 で既存テンプレを停止すればキャンペーン3テンプレのみ選ばれ**毎日キャンペーン文言が流れる**。7日後に `USE_AI_GENERATION=true` へ戻す必要あり（endCampaign500 に復帰処理を追記する案も可）。トレードオフ: 期間中はAIの多様な文章ではなく固定のキャンペーン文3種のみになる（キャンペーン目的には妥当）。
+- 案B: AI生成を維持し、生成プロンプト側に500円訴求を織り込む（コード改修が必要）。
+- 案C: その他 / 今回は見送り。
 
 ---
 
-## ③ LINEキャンペーン配信 — ⏸ ブロック（対象者リスト未確定 + 送信は要確認）
+## ③ LINEキャンペーン配信 — ⏸ ブロック（対象者リスト未確定・要送信承認）
 
-指示: `CAMPAIGN-500YEN-TRIAL-2026-07.md` §3 のメッセージを対象者リストへ配信。決済リンク `https://square.link/u/hOdH1kPk`。
-
-**状況・ブロッカー:**
-- `CAMPAIGN-500YEN-TRIAL-2026-07.md` §7 チェックリストで「§1 対象者リストを手動抽出」は**未チェック**。§1 は「LINE公式管理画面の友だちリスト × 契約中リストを突き合わせて手動抽出」とあり、**具体的な対象者リストが repo 上に存在しない**。
-- 実顧客への個別メッセージ送信は**外部影響・取り消し困難**なアクション。送信方法（LINE Manager の一斉配信 vs 個別送信、`{name}` 差し込みの扱い）も未定。
-
-→ 対象者リスト（誰へ／何名）と送信方法の指定、および送信の明示承認が必要。
+- `CAMPAIGN-500YEN-TRIAL-2026-07.md` §7 で「§1 対象者リスト手動抽出」は未チェック。具体的な対象者リストが repo 上に存在しない。
+- 実顧客への個別送信は外部影響・要明示承認。対象者（誰へ・何名）と送信方法の指定待ち。
 
 ---
 
 ## 次アクション（ユーザー確認事項）
-
-1. **②GAS**: 本番 FOLLOW-KPI GAS をブラウザで編集し `startCampaign500()`（7日間公開キャンペーン）まで実行してよいか。FOLLOW-KPI スプレッドシートのURL/場所。
-2. **③LINE配信**: 対象者リスト（誰へ・何名）と送信方法。実顧客への送信の明示承認。
+1. **②GAS**: 案A（キャンペーン中だけ USE_AI_GENERATION=false）で進めてよいか。可なら私が設定変更→smokeTest再確認(theme=campaign)→startCampaign500 実行→実行ログ報告。
+2. **③LINE配信**: 対象者リストと送信方法、送信の明示承認。
