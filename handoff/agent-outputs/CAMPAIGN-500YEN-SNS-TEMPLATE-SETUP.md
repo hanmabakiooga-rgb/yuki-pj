@@ -193,3 +193,96 @@ const chosen = candidates[0];
 ### ケースD: `template_id` を既存行と重複させてしまった場合
 
 - コード上、`template_id` の一意性はチェックされていない（単なる文字列列で、抽選ロジックにも使われない）。動作は壊れないが、ログや目視確認がしづらくなるため、重複が判明したら片方の `template_id` を書き換えて一意にしておく（機能への影響はない）。
+
+---
+
+## 6. 【確定】1週間限定運用＋自動終了トリガー（推奨・2026-07-12追記）
+
+ユーザー判断により、キャンペーンは**1週間限定で毎日確実に流す**運用が確定した。§3で示した「既存21行のactiveをFALSEにする」対処法を採用する。
+
+ただし、§5ケースCの通り「戻し忘れ」は該当スロットの投稿停止、最悪`killSwitchHealthCheck()`による自動投稿全体の緊急停止につながる重大リスクである。**人の記憶に頼らず、7日後に自動で元に戻る仕組み**を用意する。
+
+### 6-1. 追加する2関数（Main.gsの末尾に貼り付け）
+
+```javascript
+/**
+ * 500円キャンペーン開始：既存21テンプレを停止し、7日後に自動で戻す
+ * トリガーを1件セットするだけなので、実行は1回だけでよい
+ */
+function startCampaign500() {
+  const sheet = getSheet(CONFIG.SHEETS.TEMPLATES);
+  const data = sheet.getDataRange().getValues();
+  const header = data[0];
+  const activeIdx = header.indexOf('active');
+  const themeIdx = header.indexOf('theme');
+
+  for (let i = 1; i < data.length; i++) {
+    const theme = data[i][themeIdx];
+    if (theme === 'education' || theme === 'empathy_core' || theme === 'philosophy') {
+      sheet.getRange(i + 1, activeIdx + 1).setValue('FALSE');
+    }
+  }
+
+  // 既存の同名トリガーが残っていれば掃除してから、7日後に1回だけ実行するトリガーを作る
+  ScriptApp.getProjectTriggers().forEach(t => {
+    if (t.getHandlerFunction() === 'endCampaign500') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('endCampaign500')
+    .timeBased()
+    .after(7 * 24 * 60 * 60 * 1000)
+    .create();
+
+  Logger.log('✅ campaign500 started: 既存21テンプレ停止、7日後に自動復帰予約済み');
+  Notifier.send('[Campaign500] キャンペーン開始。既存投稿は7日間停止し、キャンペーン文言のみ流します。7日後に自動で通常投稿へ戻ります。');
+}
+
+/**
+ * 500円キャンペーン終了：既存21テンプレを復帰、キャンペーン3行を停止
+ * startCampaign500() が仕込んだトリガーから自動実行される（手動実行も可）
+ */
+function endCampaign500() {
+  const sheet = getSheet(CONFIG.SHEETS.TEMPLATES);
+  const data = sheet.getDataRange().getValues();
+  const header = data[0];
+  const activeIdx = header.indexOf('active');
+  const themeIdx = header.indexOf('theme');
+  const idIdx = header.indexOf('template_id');
+
+  for (let i = 1; i < data.length; i++) {
+    const theme = data[i][themeIdx];
+    const id = String(data[i][idIdx] || '');
+    if (theme === 'education' || theme === 'empathy_core' || theme === 'philosophy') {
+      sheet.getRange(i + 1, activeIdx + 1).setValue('TRUE');
+    }
+    if (id.indexOf('camp500_') === 0) {
+      sheet.getRange(i + 1, activeIdx + 1).setValue('FALSE');
+    }
+  }
+
+  // 自分自身のトリガー（1回限りなので実行後は自動消滅するが念のため掃除）
+  ScriptApp.getProjectTriggers().forEach(t => {
+    if (t.getHandlerFunction() === 'endCampaign500') ScriptApp.deleteTrigger(t);
+  });
+
+  Logger.log('✅ campaign500 ended: 通常投稿に復帰、キャンペーン行は停止済み');
+  Notifier.send('[Campaign500] キャンペーン終了、通常投稿に復帰しました。Square決済リンク（https://square.link/u/hOdH1kPk）の無効化も忘れずに行ってください。');
+}
+```
+
+### 6-2. 実行手順
+
+1. Main.gsに上記2関数を貼り付けて保存（Ctrl+S）
+2. §2の3行を`sns_templates`に追加済みであることを確認
+3. GASエディタの関数プルダウンで `startCampaign500` を選択し、実行ボタンをクリック
+4. 実行ログに「✅ campaign500 started」と出れば成功。同時に管理者LINEにも開始通知が届く
+5. **これで完了**。7日後、`endCampaign500` が自動的に実行され、通常投稿への復帰と管理者LINE通知（Square決済リンク無効化のリマインドつき）が自動で届く
+
+### 6-3. 途中で手動終了したい場合
+
+7日を待たずに終了したい場合は、GASエディタで `endCampaign500` を手動実行すればよい（トリガーも自動で片付く）。
+
+### 6-4. この方式の利点
+
+- 「戻し忘れ」による投稿停止・KillSwitch誤作動のリスクをゼロにする
+- 開始・終了ともに管理者LINEに通知が飛ぶため、進行状況を見失わない
+- 終了通知にSquare決済リンクの無効化リマインドが自動で含まれるため、`CAMPAIGN-500YEN-TRIAL-2026-07.md` §6の「決済リンク無効化」も忘れにくくなる
