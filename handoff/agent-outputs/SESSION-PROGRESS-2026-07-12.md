@@ -47,3 +47,23 @@
 ## 次アクション（ユーザー確認事項）
 1. **②GAS**: 案A（キャンペーン中だけ USE_AI_GENERATION=false）で進めてよいか。可なら私が設定変更→smokeTest再確認(theme=campaign)→startCampaign500 実行→実行ログ報告。
 2. **③LINE配信**: 対象者リストと送信方法、送信の明示承認。
+
+---
+
+## ②追記（2026-07-12 実装ログ・案B）
+
+**案B（AI生成にCTA付加）を実装:**
+- ContentGenerator.gs: `generateForSlot` を `generateForSlotBase` にリネームし、ラッパー `generateForSlot`（全生成パスをカバー）+ `applyCampaign500(content)` を追加・保存。CAMPAIGN_500_ACTIVE=true の時のみ投稿末尾に承認済みCTA（「FOLLOWは初回500円でお試しいただけます。/気になるところだけ、プロフィールのLINEからどうぞ。」）を付加、theme=campaign化、Threads 500字内にクリップ。
+- Main.gs: `startCampaign500()`/`endCampaign500()` を「テンプレ停止」から「Script Property CAMPAIGN_500_ACTIVE の ON/OFF + 7日後自動終了トリガー」に変更。`addCampaign500Templates` は削除（案Bでは不要、既追加の3行は不活性のまま残置）。
+- 両ファイル構文エラーなしで保存済み。
+
+**⚠️ 作業ミス（要クリーンアップ）:**
+- GASエディタの関数選択が startCampaign500 に確定せず、誤って `seedTemplates()` を実行。`sns_templates` に21テンプレの重複行が追加された（ログ `✅ Seeded 21 templates`）。
+- **AI生成モード（USE_AI_GENERATION=true）では sns_templates は投稿に使われないため機能影響はゼロ**だが、重複データは除去すべき。除去関数の自動実行は本番データ一括削除のため保留（要ユーザー承認）。
+
+**未実行:**
+- `startCampaign500()` は未実行（CAMPAIGN_500_ACTIVE 未設定 = キャンペーン未開始）。
+
+**次アクション（要ユーザー承認）:**
+1. `sns_templates` の重複21行の除去（template_id 重複を除去、元21+キャンペーン3を残す）
+2. `startCampaign500()` の正しい実行 → 実行ログ（✅ campaign500 started）と管理者LINE通知を報告
