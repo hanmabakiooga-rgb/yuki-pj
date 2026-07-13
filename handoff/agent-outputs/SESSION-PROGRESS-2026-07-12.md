@@ -67,3 +67,27 @@
 **次アクション（要ユーザー承認）:**
 1. `sns_templates` の重複21行の除去（template_id 重複を除去、元21+キャンペーン3を残す）
 2. `startCampaign500()` の正しい実行 → 実行ログ（✅ campaign500 started）と管理者LINE通知を報告
+
+---
+
+## ②完了報告（2026-07-13 21:16 キャンペーン開始）
+
+**startCampaign500() 実行成功。実行ログ:**
+```
+21:16:49 お知らせ 実行開始
+21:16:51 情報    ✅ campaign500 started: CAMPAIGN_500_ACTIVE=true, 7日後に自動終了を予約済み
+21:16:51 お知らせ 実行完了
+```
+
+**検証（すべて確認済み）:**
+1. トリガー一覧に `endCampaign500`（時間ベース）が存在 = 7日後の自動終了予約OK。通常運用トリガー（generateTomorrowPosts / checkAndPost / killSwitchHealthCheck）はエラー率0%で健在。
+2. `smokeTest()` 再実行（21:30:02）: `[5] Legal OK case: ok` → `[6] Gen morning: セルフカラーを考えている人へ。…(theme=campaign)` — **AI生成文に applyCampaign500 が適用され theme=campaign で生成**。法務チェック通過。今夜23:00の generateTomorrowPosts から本番投稿にCTAが乗る。
+3. 管理者LINE通知: Notifier.send はエラーなしで完了（受信はユーザー側で要確認）。
+
+**キャンペーン仕様（実装済み・稼働中）:**
+- 期間: 2026-07-13 21:16 から7日間（endCampaign500 が自動実行され CAMPAIGN_500_ACTIVE=false に復帰、Square リンク無効化リマインド付き通知）
+- 動作: AI生成投稿の末尾に毎回「―――/FOLLOWは初回500円でお試しいただけます。/気になるところだけ、プロフィールのLINEからどうぞ。」を付加（Threads 500字内にクリップ、「500円」を既に含む生成文には二重付加しない）
+- 手動で早期終了したい場合: GASエディタで `endCampaign500` を実行
+
+**残クリーンアップ（未実施・要承認）:**
+- `sns_templates` の重複21行（seedTemplates 誤実行分）の削除。機能影響ゼロだが本番データ削除のため承認待ち。
