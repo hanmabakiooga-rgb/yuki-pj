@@ -72,4 +72,34 @@
 
 ---
 
+## 2026-07-12｜設計書が前提にしたシステムと、実際に稼働しているシステムが違った
+
+### 現象
+- 500円キャンペーンをThreads自動投稿に組み込む設計を「`sns_templates`シートの`generateFromTemplate()`（use_count昇順選択）」前提で書いたが、
+  実際にローカルで`smokeTest()`を実行すると `[ContentGenerator] AI生成成功` `theme=ai_education` と出て、
+  設計通りに`theme=campaign`が選ばれなかった。
+
+### 原因
+- 本番のGASは Script Property `USE_AI_GENERATION=true`（+ `ANTHROPIC_API_KEY`設定済み）で稼働しており、
+  日次投稿は実際には `generateWithAI()`（LLMによる都度生成）を使っていた。
+- `GAS-AUTOPOST-SYSTEM-DESIGN.md`が説明する「テンプレシートから選ぶ」方式は、**設計書には書かれているが本番では使われていない**
+  （おそらく後日AI生成モードに切り替えられ、設計書側が更新されないまま放置されていた）。
+
+### 対策（必ず守る）
+1. **GASプロジェクトを触る前に、必ず `getProp('USE_AI_GENERATION')` の実際の値を確認する。** 設計書の記述を鵜呑みにしない。
+2. 新機能を「テンプレ選択ロジックに依存する形」で設計する前に、`smokeTest()`のログで実際にどちらの生成パスが動いているか確認する。
+3. 今回は「案B: AI生成文の末尾にCTAを後付けする」方式（`ContentGenerator.gs`に`applyCampaign500()`、`generateForSlot()`をラップ）で解決した。
+   AI生成モードの本番では、テンプレのactive切り替えではなく、生成後のポストプロセスで訴求を注入する方が確実。
+
+### 該当ファイル
+- `ContentGenerator.gs`: `generateForSlot` → `generateForSlotBase` にリネームし、ラッパー`generateForSlot`が`applyCampaign500()`を適用
+- `Main.gs`: `startCampaign500()`/`endCampaign500()` は「テンプレ停止」ではなく「Script Property `CAMPAIGN_500_ACTIVE` のON/OFF」に変更
+- 設計時点のドキュメント（`CAMPAIGN-500YEN-SNS-TEMPLATE-SETUP.md`）は前提が誤っていたため、実装時に現地で作り直された
+
+### 学び
+- ドキュメントは「その時点の設計」であって「現在の本番構成」を保証しない。本番の実際のScript Properties・Active Deploymentを都度確認する習慣が必須
+- 「AI生成 or テンプレ選択」のような二択の分岐点は、設計書に「どちらが有効か」を明記し、切り替わったら即座に設計書側も更新する
+
+---
+
 ## （以降、踏んだ落とし穴があれば追記）
