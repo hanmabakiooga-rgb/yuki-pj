@@ -3,6 +3,8 @@
 RESERVA（`noreply@reserva.be`）から届く「予約が入りました」通知メールを解析し、
 「予約者の氏名」「予約内容（メニュー）」「予約日時」をGoogleカレンダーの予定として自動登録するGoogle Apps Scriptです。
 
+> ローカル環境（ブラウザでのGoogle認可が必要）で続きの作業をする場合は [`HANDOFF.md`](./HANDOFF.md) を参照してください。
+
 ## セットアップ手順
 
 1. [script.google.com](https://script.google.com) にアクセスし、「新しいプロジェクト」を作成する。

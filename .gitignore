@@ -1,0 +1,3 @@
+# clasp (Google Apps Script CLI) local project files — contain per-deployment scriptId, do not commit
+.clasp.json
+.clasprc.json
