@@ -90,8 +90,6 @@
   /* The stage matches the video's ratio, so `cover` crops nothing meaningful. */
   object-fit: cover;
   object-position: center;
-  /* Hides the 1–2px dark encoder padding row at the source's bottom edge. */
-  transform: scale(1.012);
 }
 
 /* When the <video> can't render, the inner <img> fallback shows. */
