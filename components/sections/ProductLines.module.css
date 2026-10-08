@@ -1,0 +1,214 @@
+/* =========================================================
+   Product lines — photo gallery + quiet spec text per line.
+   Desktop: alternating two-column rows. Mobile: stacked.
+   ========================================================= */
+
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.list {
+  display: grid;
+  gap: clamp(88px, 10vw, 140px);
+  margin-top: clamp(24px, 4vw, 48px);
+}
+
+.line {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: center;
+  gap: clamp(32px, 6vw, 80px);
+}
+
+/* Alternate the photo side so the column reads like a printed catalogue. */
+.line:nth-child(even) .gallery {
+  order: 2;
+}
+
+/* ----- Gallery -------------------------------------------------- */
+
+.gallery {
+  position: relative;
+  min-width: 0;
+}
+
+/* Visually hidden, still focusable and announced. */
+.radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.frames {
+  position: relative;
+  aspect-ratio: 1.75;
+  /* room for the caption under the photo */
+  margin-bottom: 40px;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 600ms ease,
+    visibility 0s linear 600ms;
+}
+
+.frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--kamito-surface);
+  box-shadow:
+    0 30px 60px -40px rgba(40, 36, 28, 0.28),
+    0 6px 14px -8px rgba(40, 36, 28, 0.1);
+}
+
+.frame figcaption {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding-top: 14px;
+  font-family: var(--kamito-mincho);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--kamito-ink-soft);
+}
+
+/* Show the frame whose radio is checked. */
+.radio:nth-of-type(1):checked ~ .frames .frame:nth-child(1),
+.radio:nth-of-type(2):checked ~ .frames .frame:nth-child(2),
+.radio:nth-of-type(3):checked ~ .frames .frame:nth-child(3) {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 600ms ease;
+}
+
+.thumbs {
+  display: flex;
+  gap: 10px;
+}
+
+.thumb {
+  width: 72px;
+  aspect-ratio: 1.75;
+  padding: 2px;
+  border: 1px solid transparent;
+  opacity: 0.5;
+  cursor: pointer;
+  transition:
+    opacity 240ms ease,
+    border-color 240ms ease;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb:hover {
+  opacity: 0.85;
+}
+
+.radio:nth-of-type(1):checked ~ .thumbs .thumb:nth-child(1),
+.radio:nth-of-type(2):checked ~ .thumbs .thumb:nth-child(2),
+.radio:nth-of-type(3):checked ~ .thumbs .thumb:nth-child(3) {
+  opacity: 1;
+  border-color: var(--kamito-ink);
+}
+
+.radio:nth-of-type(1):focus-visible ~ .thumbs .thumb:nth-child(1),
+.radio:nth-of-type(2):focus-visible ~ .thumbs .thumb:nth-child(2),
+.radio:nth-of-type(3):focus-visible ~ .thumbs .thumb:nth-child(3) {
+  outline: 1px solid var(--kamito-accent);
+  outline-offset: 3px;
+}
+
+/* ----- Text ----------------------------------------------------- */
+
+.text {
+  min-width: 0;
+}
+
+.process {
+  margin: 0 0 14px;
+  font-family: var(--kamito-mincho);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--kamito-accent);
+}
+
+.name {
+  margin: 0 0 24px;
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: clamp(44px, 5vw, 64px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0.2em;
+}
+
+.copy {
+  margin: 0 0 28px;
+  font-family: var(--kamito-mincho);
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 2.1;
+  letter-spacing: 0.08em;
+  color: var(--kamito-ink-soft);
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--kamito-line);
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  color: var(--kamito-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  font-family: var(--kamito-mincho);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--kamito-ink-soft);
+}
+
+/* ----- Small screens -------------------------------------------- */
+
+@media (max-width: 860px) {
+  .line {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .line:nth-child(even) .gallery {
+    order: 0;
+  }
+
+  .thumb {
+    width: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .thumb {
+    transition: none;
+  }
+}

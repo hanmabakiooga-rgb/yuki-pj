@@ -13,12 +13,26 @@
   --kamito-ink-soft: #6b6960;    /* secondary text */
   --kamito-ink-quiet: #9a978d;   /* tertiary / eyebrow text */
   --kamito-line: #e7e3d9;        /* hairline dividers */
+  --kamito-paper-deep: #efebe2;  /* alternate section ground */
+  --kamito-accent: #8f5e33;      /* deep copper — eyebrows, prices (AA on bg) */
 
   /* Type scale helpers */
   --kamito-serif: "Cormorant Garamond", "Noto Serif JP", Georgia,
     "Times New Roman", serif;
   --kamito-sans: "Inter", "Helvetica Neue", Helvetica, "Hiragino Sans",
     "Yu Gothic", system-ui, -apple-system, sans-serif;
+  --kamito-mincho: var(--kamito-mincho-font), "Hiragino Mincho ProN",
+    "Yu Mincho", serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 * {
@@ -41,6 +55,9 @@ body {
 
 body {
   min-height: 100svh;
+  /* Japanese: break at phrase boundaries so lines don't end with a lone "む。" */
+  line-break: strict;
+  word-break: auto-phrase;
 }
 
 /* Remove default focus outline only when a mouse user focuses — keyboard

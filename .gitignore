@@ -8,7 +8,9 @@
 
 # next.js
 /.next/
+/.next-preview/
 /out/
+/preview/
 
 # production
 /build

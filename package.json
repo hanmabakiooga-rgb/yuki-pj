@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "preview:build": "node scripts/build-preview.mjs",
     "lint": "next lint"
   },
   "dependencies": {

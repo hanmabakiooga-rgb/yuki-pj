@@ -1,13 +1,23 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter, Noto_Serif_JP } from "next/font/google";
 import "./globals.css";
 
 /* -----------------------------------------------------------
    Fonts
-   - Serif (Cormorant Garamond) for headlines — quiet elegance.
-   - Sans (Inter) for UI text.
-   Both are loaded via next/font for self-hosting + no CLS.
+   - Serif (Cormorant Garamond) for Latin headlines and labels.
+   - Sans (Inter) for small UI text.
+   - Mincho (Noto Serif JP) for Japanese copy in the lower sections.
+   All are self-hosted via next/font (no layout shift).
    ----------------------------------------------------------- */
+const mincho = Noto_Serif_JP({
+  subsets: ["latin"],
+  weight: ["300", "400"],
+  variable: "--kamito-mincho-font",
+  display: "swap",
+  // Japanese is split into many unicode-range files; let the browser fetch only what it needs.
+  preload: false,
+});
+
 const serif = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400"],
@@ -25,7 +35,7 @@ const sans = Inter({
 export const metadata: Metadata = {
   title: "KAMITO",
   description:
-    "KAMITO — paper, carefully shaped. A quiet study in paper and finish.",
+    "KAMITO — 活版印刷・ダイカット・箔押しのスペシャルカード。100枚から、サンプルセット¥1,500。",
 };
 
 export default function RootLayout({
@@ -34,7 +44,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={`${serif.variable} ${sans.variable}`}>
+    <html
+      lang="ja"
+      className={`${serif.variable} ${sans.variable} ${mincho.variable}`}
+    >
       <body>{children}</body>
     </html>
   );

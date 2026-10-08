@@ -1,0 +1,437 @@
+/* =========================================================
+   Shared styles for the sections below the hero.
+   Same paper ground, hairlines and restraint as the hero;
+   Japanese copy is set in mincho, Latin labels in Cormorant.
+   ========================================================= */
+
+.section {
+  padding: clamp(96px, 12vw, 160px) clamp(20px, 5vw, 64px);
+  background: var(--kamito-bg);
+  color: var(--kamito-ink);
+}
+
+.sectionAlt {
+  background: var(--kamito-paper-deep);
+}
+
+/* Reading column — Japanese text reads best around 30–36 characters. */
+.column {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 28px;
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--kamito-accent);
+}
+
+.title {
+  margin: 0 0 32px;
+  font-family: var(--kamito-mincho);
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  text-wrap: balance;
+}
+
+.body {
+  margin: 0;
+  font-family: var(--kamito-mincho);
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 2.1;
+  letter-spacing: 0.07em;
+  color: var(--kamito-ink-soft);
+}
+
+/* ----- Buttons -------------------------------------------------- */
+/* Rectangular, hairline-weight, no rounded pill — reads as stationery. */
+
+.btn,
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 14px 28px;
+  border: 1px solid var(--kamito-ink);
+  font-family: var(--kamito-mincho);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  transition:
+    background-color 320ms ease,
+    color 320ms ease;
+}
+
+.btn {
+  background: var(--kamito-ink);
+  color: var(--kamito-bg);
+}
+
+.btn:hover,
+.btn:focus-visible {
+  background: transparent;
+  color: var(--kamito-ink);
+}
+
+.btnGhost {
+  background: transparent;
+  color: var(--kamito-ink);
+}
+
+.btnGhost:hover,
+.btnGhost:focus-visible {
+  background: var(--kamito-ink);
+  color: var(--kamito-bg);
+}
+
+.btn:focus-visible,
+.btnGhost:focus-visible {
+  outline: 1px solid var(--kamito-ink);
+  outline-offset: 4px;
+}
+
+/* ----- Story ---------------------------------------------------- */
+
+.storyText {
+  display: grid;
+  gap: 1.6em;
+}
+
+.storyText strong {
+  font-weight: 400;
+  color: var(--kamito-ink);
+}
+
+.divider {
+  width: 32px;
+  height: 1px;
+  margin: 56px 0 32px;
+  border: 0;
+  background: var(--kamito-line);
+}
+
+.signature {
+  margin: 0;
+  font-family: var(--kamito-mincho);
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: var(--kamito-ink);
+}
+
+/* ----- Pricing -------------------------------------------------- */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--kamito-mincho);
+}
+
+.table th,
+.table td {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--kamito-line);
+  text-align: left;
+  vertical-align: baseline;
+  font-weight: 300;
+}
+
+.table thead th {
+  padding-top: 0;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--kamito-ink-quiet);
+  border-bottom-color: var(--kamito-ink-quiet);
+}
+
+.table tbody th {
+  padding-right: 16px;
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: 20px;
+  letter-spacing: 0.16em;
+  color: var(--kamito-ink);
+}
+
+.table td {
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--kamito-ink-soft);
+}
+
+.table .price {
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: 19px;
+  letter-spacing: 0.06em;
+  color: var(--kamito-accent);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.notes {
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--kamito-mincho);
+  font-size: 13px;
+  line-height: 2;
+  letter-spacing: 0.06em;
+  color: var(--kamito-ink-soft);
+}
+
+/* ----- Sample set ----------------------------------------------- */
+
+.sampleBox {
+  position: relative;
+  margin-top: 48px;
+  padding: 44px clamp(24px, 4vw, 40px) 36px;
+  border: 1px solid var(--kamito-ink);
+  background: var(--kamito-surface);
+}
+
+/* Label set into the top border, like a tab on a paper sleeve. */
+.sampleLabel {
+  position: absolute;
+  top: -0.8em;
+  left: 24px;
+  margin: 0;
+  padding: 0 10px;
+  background: var(--kamito-bg);
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--kamito-accent);
+}
+
+.samplePrice {
+  margin: 0;
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: clamp(44px, 6vw, 56px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sampleMeta {
+  margin: 16px 0 0;
+  font-family: var(--kamito-mincho);
+  font-size: 13px;
+  line-height: 2;
+  letter-spacing: 0.06em;
+  color: var(--kamito-ink-soft);
+}
+
+.sampleRefund {
+  display: block;
+  color: var(--kamito-accent);
+}
+
+.dashList {
+  margin: 28px 0 36px;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--kamito-line);
+  list-style: none;
+  font-family: var(--kamito-mincho);
+  font-size: 13px;
+  line-height: 2.1;
+  letter-spacing: 0.07em;
+  color: var(--kamito-ink-soft);
+}
+
+.dashList li {
+  position: relative;
+  padding-left: 1.6em;
+}
+
+.dashList li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--kamito-ink-quiet);
+}
+
+.sampleBox .btn {
+  width: 100%;
+}
+
+/* ----- Order flow ----------------------------------------------- */
+
+.steps {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 4px 20px;
+  padding-bottom: 44px;
+}
+
+/* Vertical hairline linking the step numbers. */
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 52px;
+  bottom: 12px;
+  width: 1px;
+  background: var(--kamito-line);
+}
+
+.stepNum {
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--kamito-ink-quiet);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepTitle {
+  margin: 4px 0 10px;
+  font-family: var(--kamito-mincho);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+}
+
+.stepBody {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  padding: 4px 12px;
+  border: 1px solid var(--kamito-line);
+  font-family: var(--kamito-mincho);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--kamito-ink-soft);
+}
+
+.flowCta {
+  margin-top: 16px;
+}
+
+/* ----- Closing -------------------------------------------------- */
+
+.closing {
+  text-align: center;
+}
+
+.closingTitle {
+  margin: 0 0 24px;
+  font-family: var(--kamito-mincho);
+  font-size: clamp(26px, 3.4vw, 38px);
+  font-weight: 300;
+  line-height: 1.7;
+  letter-spacing: 0.14em;
+}
+
+.closing .body {
+  margin-bottom: 44px;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ----- Footer --------------------------------------------------- */
+
+.footer {
+  padding: 56px 20px 48px;
+  border-top: 1px solid var(--kamito-line);
+  background: var(--kamito-bg);
+  text-align: center;
+}
+
+.footerLogo {
+  margin: 0 0 10px;
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  color: var(--kamito-ink);
+}
+
+.footerTag {
+  margin: 0;
+  font-family: var(--kamito-mincho);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--kamito-ink-soft);
+}
+
+.footerNote {
+  margin: 32px 0 0;
+  font-family: var(--kamito-serif-font, var(--kamito-serif));
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--kamito-ink-quiet);
+}
+
+/* ----- Small screens -------------------------------------------- */
+
+@media (max-width: 720px) {
+  .body {
+    font-size: 14px;
+  }
+
+  .table tbody th {
+    font-size: 18px;
+  }
+
+  .table td {
+    font-size: 13px;
+  }
+
+  .ctaRow > * {
+    width: 100%;
+  }
+
+  .step {
+    grid-template-columns: 44px 1fr;
+    gap: 4px 14px;
+  }
+
+  .step:not(:last-child)::after {
+    left: 14px;
+  }
+
+  .stepNum {
+    font-size: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btnGhost {
+    transition: none;
+  }
+}
