@@ -60,11 +60,13 @@
 .stage {
   /* frame size — large on desktop, contained with margin */
   --stage-max: 1100px;
+  /* --video-ar (numeric width/height) is set inline by the component.
+     440px ≈ vertical padding + copy block, so film + copy fit one screen. */
+  --stage-fit: max(480px, calc((100svh - 440px) * var(--video-ar, 1.7778)));
   position: relative;
-  width: 100%;
-  max-width: var(--stage-max);
+  width: min(100%, var(--stage-max), var(--stage-fit));
   margin: 0;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 9; /* overridden inline by videoAspectRatio */
 
   /* subtle paper-tone placeholder behind the poster while it loads */
   background-color: #eeebe2;
@@ -85,10 +87,11 @@
   width: 100%;
   height: 100%;
   display: block;
-  /* Because the stage matches the video's 16:9 ratio, `cover` is
-     safe here — it won't crop away meaningful content. */
+  /* The stage matches the video's ratio, so `cover` crops nothing meaningful. */
   object-fit: cover;
   object-position: center;
+  /* Hides the 1–2px dark encoder padding row at the source's bottom edge. */
+  transform: scale(1.012);
 }
 
 /* When the <video> can't render, the inner <img> fallback shows. */
@@ -230,12 +233,10 @@
   }
 }
 
-/* Mobile — relax the full viewport height so the copy is
-   visible above the fold instead of pushed offscreen. */
+/* Mobile — film full-width, everything centered in one screen. */
 @media (max-width: 720px) {
   .hero {
     --pad-y: clamp(96px, 14vh, 120px);
-    min-height: auto;
   }
 
   .inner {
@@ -244,6 +245,7 @@
 
   .stage {
     --stage-max: 100%;
+    width: 100%;
     /* slightly softer shadow on mobile so it doesn't feel heavy */
     box-shadow:
       0 24px 50px -32px rgba(40, 36, 28, 0.2),

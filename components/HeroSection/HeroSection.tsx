@@ -40,6 +40,8 @@ export type HeroSectionProps = {
    * Read by AT users when the video is decorative-but-meaningful.
    */
   videoAriaLabel?: string;
+  /** Frame ratio matching the source video (e.g. "16 / 9", "1280 / 660"). */
+  videoAspectRatio?: string;
 };
 
 export default function HeroSection({
@@ -52,7 +54,14 @@ export default function HeroSection({
   ctaLabel,
   ctaHref,
   videoAriaLabel = "KAMITO brand film",
+  videoAspectRatio = "16 / 9",
 }: HeroSectionProps) {
+  const [arW, arH] = videoAspectRatio.split("/").map(Number);
+  const stageStyle = {
+    aspectRatio: videoAspectRatio,
+    "--video-ar": arW / arH,
+  } as React.CSSProperties;
+
   return (
     <section className={styles.hero} aria-label="KAMITO">
       {/* Wordmark — floats in the top corner like a letterhead.
@@ -61,10 +70,10 @@ export default function HeroSection({
 
       <div className={styles.inner}>
         {/* Film stage ---------------------------------------------------
-            The video sits inside a 16:9 frame so its composition never
-            gets cropped by the viewport. The frame carries a very soft
-            drop-shadow to give the film weight without adding darkness. */}
-        <figure className={styles.stage}>
+            The frame takes the video's own ratio (videoAspectRatio) so the
+            composition is never cropped. A very soft drop-shadow gives the
+            film weight without adding darkness. */}
+        <figure className={styles.stage} style={stageStyle}>
           <video
             className={styles.video}
             poster={posterSrc}

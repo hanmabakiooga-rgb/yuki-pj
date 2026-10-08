@@ -13,11 +13,12 @@ export default function Home() {
       <HeroSection
         // Place the finished mp4 at /public/videos/kamito-hero.mp4
         videoSrc="/videos/kamito-hero.mp4"
-        // Optional — include a .webm next to the mp4 for better compression
-        // videoSrcWebm="/videos/kamito-hero.webm"
-        // A neutral SVG placeholder ships in /public/images. Replace it with a
-        // still frame (e.g. kamito-hero-poster.jpg, ~1920x1080) when available.
-        posterSrc="/images/kamito-hero-poster.svg"
+        // ~0.66MB VP9 version; browsers that support it load this instead of the 3.3MB mp4
+        videoSrcWebm="/videos/kamito-hero.webm"
+        // First frame of the film, so poster → playback is seamless.
+        posterSrc="/images/kamito-hero-poster.jpg"
+        // Source is 1280x660 — keep the frame identical so nothing is cropped.
+        videoAspectRatio="1280 / 660"
         brandName="KAMITO"
         headline="Paper, carefully shaped."
         subtext="特殊加工と素材の静けさを、そのまま形にする。"
