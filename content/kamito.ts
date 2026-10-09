@@ -34,7 +34,8 @@ export const links = {
   consult: "#contact",
 };
 
-export const story: { paragraphs: RichText[]; closing: string } = {
+export const story: { title: string; paragraphs: RichText[]; closing: string } = {
+  title: "なぜ私たちが紙にこだわるのか",
   paragraphs: [
     ["すべてが、", { strong: "画面の上で完結する" }, "時代になった。"],
     [

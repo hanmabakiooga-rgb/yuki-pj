@@ -80,7 +80,7 @@
   left: 0;
   padding-top: 14px;
   font-family: var(--kamito-mincho);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.12em;
   color: var(--kamito-ink-soft);
 }
@@ -144,8 +144,8 @@
 .process {
   margin: 0 0 14px;
   font-family: var(--kamito-mincho);
-  font-size: 12px;
-  letter-spacing: 0.22em;
+  font-size: 14px;
+  letter-spacing: 0.2em;
   color: var(--kamito-accent);
 }
 

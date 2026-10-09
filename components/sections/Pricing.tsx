@@ -5,11 +5,11 @@ export default function Pricing() {
   return (
     <section className={s.section} id="pricing" aria-labelledby="pricing-title">
       <div className={s.column}>
-        <p className={s.eyebrow}>Pricing</p>
-        <h2 id="pricing-title" className={s.title}>
+        <p className={`${s.eyebrow} reveal`}>Pricing</p>
+        <h2 id="pricing-title" className={`${s.title} reveal`}>
           価格・仕様
         </h2>
-        <table className={s.table}>
+        <table className={`${s.table} reveal`}>
           <thead>
             <tr>
               <th scope="col">ライン</th>
@@ -29,7 +29,7 @@ export default function Pricing() {
             ))}
           </tbody>
         </table>
-        <ul className={s.notes}>
+        <ul className={`${s.notes} reveal`}>
           {pricingNotes.map((note) => (
             <li key={note}>{note}</li>
           ))}

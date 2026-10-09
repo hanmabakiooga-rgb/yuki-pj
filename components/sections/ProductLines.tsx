@@ -13,7 +13,7 @@ export default function ProductLines() {
       aria-labelledby="lines-title"
     >
       <div className={l.wrap}>
-        <h2 id="lines-title" className={s.eyebrow}>
+        <h2 id="lines-title" className={`${s.eyebrow} reveal`}>
           Product Lines
         </h2>
 
@@ -24,7 +24,7 @@ export default function ProductLines() {
               className={l.line}
               aria-labelledby={`line-${line.id}`}
             >
-              <div className={l.gallery}>
+              <div className={`${l.gallery} reveal-photo`}>
                 {line.images.map((img, i) => (
                   <input
                     key={img.src}
@@ -66,7 +66,7 @@ export default function ProductLines() {
                 </div>
               </div>
 
-              <div className={l.text}>
+              <div className={`${l.text} reveal`}>
                 <p className={l.process}>{line.process}</p>
                 <h3 id={`line-${line.id}`} className={l.name}>
                   {line.name}

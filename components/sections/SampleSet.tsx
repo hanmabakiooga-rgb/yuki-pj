@@ -5,13 +5,13 @@ export default function SampleSet() {
   return (
     <section className={s.section} id="sample" aria-labelledby="sample-title">
       <div className={s.column}>
-        <p className={s.eyebrow}>Sample Set</p>
-        <h2 id="sample-title" className={s.title}>
+        <p className={`${s.eyebrow} reveal`}>Sample Set</p>
+        <h2 id="sample-title" className={`${s.title} reveal`}>
           サンプルセット
         </h2>
-        <p className={s.body}>{sampleSet.lead}</p>
+        <p className={`${s.body} reveal`}>{sampleSet.lead}</p>
 
-        <div className={s.sampleBox}>
+        <div className={`${s.sampleBox} reveal`}>
           <p className={s.sampleLabel}>Sample set</p>
           <p className={s.samplePrice}>{sampleSet.price}</p>
           <p className={s.sampleMeta}>

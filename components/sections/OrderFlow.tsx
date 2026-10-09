@@ -8,13 +8,13 @@ export default function OrderFlow() {
       aria-labelledby="flow-title"
     >
       <div className={s.column}>
-        <p className={s.eyebrow}>How to Order</p>
-        <h2 id="flow-title" className={s.title}>
+        <p className={`${s.eyebrow} reveal`}>How to Order</p>
+        <h2 id="flow-title" className={`${s.title} reveal`}>
           発注の流れ
         </h2>
         <ol className={s.steps}>
           {orderFlow.steps.map((step, i) => (
-            <li key={step.title} className={s.step}>
+            <li key={step.title} className={`${s.step} reveal`}>
               <span className={s.stepNum} aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -32,7 +32,7 @@ export default function OrderFlow() {
             </li>
           ))}
         </ol>
-        <div className={s.flowCta}>
+        <div className={`${s.flowCta} reveal`}>
           <a className={s.btnGhost} href="#sample">
             {orderFlow.cta}
           </a>

@@ -35,6 +35,73 @@ html {
   }
 }
 
+/* =========================================================
+   Scroll reveal — elements rise softly as they enter view.
+   Pure CSS (scroll-driven animations): no JS, and browsers
+   without support simply show everything in place.
+   .reveal       fade + 24px rise (text blocks)
+   .reveal-photo fade + slight zoom settling to 1 (photos)
+   .reveal-line  hairline drawing in from the left
+   ========================================================= */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal,
+    .reveal-photo,
+    .reveal-line {
+      animation-timing-function: cubic-bezier(0.2, 0.6, 0.2, 1);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      /* Fixed distance (not %), so tall blocks finish as early as short ones. */
+      animation-range: entry 16px entry 200px;
+    }
+
+    .reveal {
+      animation-name: kamitoReveal;
+    }
+
+    .reveal-photo {
+      animation-name: kamitoRevealPhoto;
+      animation-range: entry 0px entry 320px;
+    }
+
+    .reveal-line {
+      animation-name: kamitoRevealLine;
+      transform-origin: left center;
+    }
+  }
+}
+
+@keyframes kamitoReveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kamitoRevealPhoto {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kamitoRevealLine {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
