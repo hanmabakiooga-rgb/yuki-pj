@@ -16,7 +16,8 @@
   --kamito-foil: #9c7a45;        /* gold foil — kiza only */
 
   /* Type */
-  --kamito-display: var(--font-display), "Bodoni 72", Didot, Georgia, serif;
+  --kamito-display: var(--font-display), Futura, "Helvetica Neue", Arial,
+    sans-serif;
   --kamito-mincho: var(--font-mincho), "Hiragino Mincho ProN", "Yu Mincho",
     serif;
   --kamito-mono: var(--font-mono), ui-monospace, "SFMono-Regular", Menlo,

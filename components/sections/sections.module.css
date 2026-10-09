@@ -1,7 +1,7 @@
 /* =========================================================
    Sections below the hero.
    Editorial, left-aligned grid; scale contrast between a large
-   italic Bodoni category word and quiet mincho text; mono for
+   light Jost category word and quiet mincho text; mono for
    specs and numbers, like a print job ticket.
    ========================================================= */
 
@@ -55,12 +55,10 @@
 .category {
   margin: 0;
   font-family: var(--kamito-display);
-  font-style: italic;
-  font-weight: 400;
+  font-weight: 300;
   font-size: clamp(52px, 10vw, 136px);
   line-height: 0.95;
   letter-spacing: -0.025em;
-  font-variation-settings: "opsz" 96;
   color: var(--kamito-ink);
 }
 
@@ -93,10 +91,8 @@
 
 .yen {
   margin-right: 0.08em;
-  font-family: var(--kamito-mincho);
-  font-style: normal;
   font-size: 0.5em;
-  font-weight: 500;
+  font-weight: 400;
   vertical-align: 0.62em;
 }
 
@@ -241,9 +237,9 @@
 .table tbody th {
   width: 28%;
   font-family: var(--kamito-display);
-  font-style: italic;
   font-size: clamp(30px, 3.4vw, 44px);
-  letter-spacing: -0.01em;
+  font-weight: 300;
+  letter-spacing: 0;
   line-height: 1;
 }
 
@@ -257,6 +253,7 @@
 .table .price {
   font-family: var(--kamito-display);
   font-size: clamp(26px, 2.8vw, 36px);
+  font-weight: 300;
   letter-spacing: 0;
   color: var(--kamito-ink);
   font-variant-numeric: lining-nums tabular-nums;
@@ -292,10 +289,9 @@
   margin: clamp(40px, 5vw, 72px) 0 0;
   font-family: var(--kamito-display);
   font-size: clamp(96px, 15vw, 216px);
-  font-weight: 400;
+  font-weight: 300;
   line-height: 0.85;
   letter-spacing: -0.04em;
-  font-variation-settings: "opsz" 96;
   font-variant-numeric: lining-nums;
 }
 
@@ -376,8 +372,8 @@
   display: block;
   margin-bottom: 28px;
   font-family: var(--kamito-display);
-  font-style: italic;
   font-size: clamp(56px, 6vw, 88px);
+  font-weight: 300;
   line-height: 0.9;
   letter-spacing: -0.03em;
   font-variant-numeric: lining-nums;

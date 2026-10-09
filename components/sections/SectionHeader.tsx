@@ -10,7 +10,7 @@ type Props = {
   id: string;
 };
 
-/* Section opener: small press-mark number, a large italic Bodoni word,
+/* Section opener: small press-mark number, a large light Jost word,
    then the Japanese title. Left-aligned on purpose. */
 export default function SectionHeader({ index, category, title, id }: Props) {
   return (

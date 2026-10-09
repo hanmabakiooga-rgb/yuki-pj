@@ -1,22 +1,20 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, IBM_Plex_Mono, Shippori_Mincho } from "next/font/google";
+import { IBM_Plex_Mono, Jost, Shippori_Mincho } from "next/font/google";
 import "./globals.css";
 
 /* -----------------------------------------------------------
-   Fonts — all three trace back to letterpress printing.
-   - Bodoni Moda: Latin display (Bodoni, a classic press face).
+   Fonts
+   - Jost: Latin display, light geometric sans (after Futura,
+     itself a metal type cut for letterpress).
    - Shippori Mincho: Japanese text (modelled on Meiji-era Tsukiji type).
    - IBM Plex Mono: specs, labels, numbers — like a print job ticket.
    Self-hosted via next/font (no layout shift).
    ----------------------------------------------------------- */
-const display = Bodoni_Moda({
+const display = Jost({
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  axes: ["opsz"],
+  weight: ["300", "400"],
   variable: "--font-display",
   display: "swap",
-  // next/font has no metrics for Bodoni Moda; skip the generated fallback face.
-  adjustFontFallback: false,
 });
 
 const mincho = Shippori_Mincho({
