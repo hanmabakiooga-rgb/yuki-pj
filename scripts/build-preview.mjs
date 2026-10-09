@@ -30,7 +30,7 @@ const cssHrefs = [...html.matchAll(/<link\b[^>]*>/g)]
 
 const fontName = (raw, fallback) => {
   const name = raw.replace(/_/g, " ");
-  if (fallback) return /Serif|Garamond/.test(raw) ? "serif" : "sans-serif";
+  if (fallback) return /Mono/.test(raw) ? "monospace" : "serif";
   return `'${name}'`;
 };
 
@@ -52,9 +52,10 @@ body = body
 body = relativize(body);
 
 const title = (html.match(/<title>([^<]*)<\/title>/) || [, "KAMITO"])[1];
+// Keep in sync with the next/font families in app/layout.tsx.
 const fonts =
-  "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400" +
-  "&family=Inter:wght@400;500&family=Noto+Serif+JP:wght@300;400&display=swap";
+  "https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..500;1,6..96,400..500" +
+  "&family=Shippori+Mincho:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap";
 
 fs.rmSync(previewDir, { recursive: true, force: true });
 fs.mkdirSync(previewDir, { recursive: true });

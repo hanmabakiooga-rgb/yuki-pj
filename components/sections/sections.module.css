@@ -1,79 +1,126 @@
 /* =========================================================
-   Shared styles for the sections below the hero.
-   Same paper ground, hairlines and restraint as the hero;
-   Japanese copy is set in mincho, Latin labels in Cormorant.
+   Sections below the hero.
+   Editorial, left-aligned grid; scale contrast between a large
+   italic Bodoni category word and quiet mincho text; mono for
+   specs and numbers, like a print job ticket.
    ========================================================= */
 
 .section {
-  padding: clamp(96px, 12vw, 160px) clamp(20px, 5vw, 64px);
+  padding-block: clamp(112px, 14vw, 200px);
   background: var(--kamito-bg);
   color: var(--kamito-ink);
 }
 
-.sectionAlt {
-  background: var(--kamito-paper-deep);
+.band {
+  background: var(--kamito-bg-2);
 }
 
-/* Reading column — Japanese text reads best around 30–36 characters. */
-.column {
-  max-width: 560px;
+.container {
+  max-width: 1240px;
   margin: 0 auto;
+  padding-inline: clamp(20px, 5vw, 64px);
 }
 
-.eyebrow {
-  margin: 0 0 24px;
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: clamp(15px, 1.2vw, 17px);
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--kamito-accent);
+/* 12-column grid on wide screens, single column below 900px. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(16px, 2vw, 32px);
+}
+
+/* ----- Section header ------------------------------------------- */
+
+.head {
+  margin-bottom: clamp(56px, 7vw, 96px);
+}
+
+.index {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 20px;
+  font-family: var(--kamito-mono);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: var(--kamito-ink-quiet);
+}
+
+.indexRule {
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: currentColor;
+}
+
+.category {
+  margin: 0;
+  font-family: var(--kamito-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(52px, 10vw, 136px);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  font-variation-settings: "opsz" 96;
+  color: var(--kamito-ink);
 }
 
 .title {
-  margin: 0 0 32px;
+  margin: clamp(20px, 2.4vw, 32px) 0 0;
   font-family: var(--kamito-mincho);
-  font-size: clamp(24px, 3vw, 34px);
-  font-weight: 300;
+  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 500;
   line-height: 1.5;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-wrap: balance;
 }
+
+/* ----- Text ----------------------------------------------------- */
 
 .body {
   margin: 0;
   font-family: var(--kamito-mincho);
-  font-size: 15px;
-  font-weight: 300;
-  line-height: 2.1;
-  letter-spacing: 0.07em;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 2.15;
+  letter-spacing: 0.06em;
   color: var(--kamito-ink-soft);
 }
 
-/* ----- Buttons -------------------------------------------------- */
-/* Rectangular, hairline-weight, no rounded pill — reads as stationery. */
+.body strong {
+  font-weight: 500;
+  color: var(--kamito-ink);
+}
 
-.btn,
-.btnGhost {
+.yen {
+  margin-right: 0.08em;
+  font-family: var(--kamito-mincho);
+  font-style: normal;
+  font-size: 0.5em;
+  font-weight: 500;
+  vertical-align: 0.62em;
+}
+
+/* ----- Buttons -------------------------------------------------- */
+
+.btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: 14px 28px;
+  justify-content: space-between;
+  gap: 32px;
+  min-width: min(100%, 320px);
+  min-height: 64px;
+  padding: 0 28px;
+  background: var(--kamito-ink);
+  color: var(--kamito-bg);
   border: 1px solid var(--kamito-ink);
   font-family: var(--kamito-mincho);
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0.16em;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-decoration: none;
   transition:
     background-color 320ms ease,
     color 320ms ease;
-}
-
-.btn {
-  background: var(--kamito-ink);
-  color: var(--kamito-bg);
 }
 
 .btn:hover,
@@ -82,19 +129,43 @@
   color: var(--kamito-ink);
 }
 
-.btnGhost {
-  background: transparent;
+/* Quiet secondary action: text with a hairline underline. */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+  padding: 0 4px;
+  font-family: var(--kamito-mincho);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   color: var(--kamito-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 8px;
+  transition: text-underline-offset 320ms ease;
 }
 
-.btnGhost:hover,
-.btnGhost:focus-visible {
-  background: var(--kamito-ink);
-  color: var(--kamito-bg);
+.link:hover,
+.link:focus-visible {
+  text-underline-offset: 12px;
+}
+
+.arrow {
+  font-family: var(--kamito-mono);
+  transition: transform 320ms ease;
+}
+
+.btn:hover .arrow,
+.btn:focus-visible .arrow,
+.link:hover .arrow,
+.link:focus-visible .arrow {
+  transform: translateX(6px);
 }
 
 .btn:focus-visible,
-.btnGhost:focus-visible {
+.link:focus-visible {
   outline: 1px solid var(--kamito-ink);
   outline-offset: 4px;
 }
@@ -102,29 +173,43 @@
 /* ----- Story ---------------------------------------------------- */
 
 .storyText {
+  grid-column: 6 / span 7;
   display: grid;
-  gap: 1.6em;
+  gap: 1.8em;
 }
 
-.storyText strong {
-  font-weight: 400;
+/* The turn of the story, set as a pull line. */
+.pivot {
+  margin: 0.4em 0;
+  font-family: var(--kamito-mincho);
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
   color: var(--kamito-ink);
 }
 
-.divider {
-  width: 32px;
-  height: 1px;
-  margin: 56px 0 32px;
-  border: 0;
-  background: var(--kamito-line);
+.pivot strong {
+  font-weight: 500;
 }
 
 .signature {
-  margin: 0;
+  grid-column: 6 / span 7;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: clamp(56px, 6vw, 88px) 0 0;
   font-family: var(--kamito-mincho);
-  font-size: 14px;
-  letter-spacing: 0.18em;
-  color: var(--kamito-ink);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+
+.signature::before {
+  content: "";
+  flex: 0 0 48px;
+  height: 1px;
+  background: var(--kamito-ink);
 }
 
 /* ----- Pricing -------------------------------------------------- */
@@ -132,307 +217,356 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--kamito-mincho);
 }
 
 .table th,
 .table td {
-  padding: 18px 0;
+  padding: 28px 0;
   border-bottom: 1px solid var(--kamito-line);
   text-align: left;
   vertical-align: baseline;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .table thead th {
-  padding-top: 0;
+  padding: 0 0 16px;
+  border-bottom-color: var(--kamito-ink);
+  font-family: var(--kamito-mono);
   font-size: 13px;
   letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--kamito-ink-quiet);
-  border-bottom-color: var(--kamito-ink-quiet);
 }
 
 .table tbody th {
-  padding-right: 16px;
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: 20px;
-  letter-spacing: 0.16em;
-  color: var(--kamito-ink);
+  width: 28%;
+  font-family: var(--kamito-display);
+  font-style: italic;
+  font-size: clamp(30px, 3.4vw, 44px);
+  letter-spacing: -0.01em;
+  line-height: 1;
 }
 
 .table td {
-  font-size: 14px;
-  letter-spacing: 0.06em;
+  font-family: var(--kamito-mincho);
+  font-size: 16px;
+  letter-spacing: 0.08em;
   color: var(--kamito-ink-soft);
 }
 
 .table .price {
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: 19px;
-  letter-spacing: 0.06em;
-  color: var(--kamito-accent);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--kamito-display);
+  font-size: clamp(26px, 2.8vw, 36px);
+  letter-spacing: 0;
+  color: var(--kamito-ink);
+  font-variant-numeric: lining-nums tabular-nums;
   text-align: right;
   white-space: nowrap;
 }
 
 .notes {
-  margin: 24px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 28px 0 0;
   padding: 0;
   list-style: none;
   font-family: var(--kamito-mincho);
-  font-size: 13px;
-  line-height: 2;
+  font-size: 14px;
   letter-spacing: 0.06em;
   color: var(--kamito-ink-soft);
 }
 
 /* ----- Sample set ----------------------------------------------- */
 
-.sampleBox {
-  position: relative;
-  margin-top: 48px;
-  padding: 44px clamp(24px, 4vw, 40px) 36px;
-  border: 1px solid var(--kamito-ink);
-  background: var(--kamito-surface);
+.sampleIntro {
+  grid-column: 1 / span 6;
 }
 
-/* Label set into the top border, like a tab on a paper sleeve. */
-.sampleLabel {
-  position: absolute;
-  top: -0.8em;
-  left: 24px;
-  margin: 0;
-  padding: 0 10px;
-  background: var(--kamito-bg);
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--kamito-accent);
+.sampleIntro .body {
+  margin-top: 24px;
 }
 
+/* The price is the image of this section. */
 .samplePrice {
-  margin: 0;
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: clamp(44px, 6vw, 56px);
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
+  margin: clamp(40px, 5vw, 72px) 0 0;
+  font-family: var(--kamito-display);
+  font-size: clamp(96px, 15vw, 216px);
+  font-weight: 400;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  font-variation-settings: "opsz" 96;
+  font-variant-numeric: lining-nums;
 }
 
-.sampleMeta {
-  margin: 16px 0 0;
+.samplePrice small {
+  margin-left: 0.2em;
+  font-family: var(--kamito-mono);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  color: var(--kamito-ink-quiet);
+}
+
+.sampleDetail {
+  grid-column: 8 / span 5;
+  align-self: end;
+}
+
+.specLine {
+  margin: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--kamito-ink);
+  font-family: var(--kamito-mono);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+}
+
+.refund {
+  margin: 20px 0 0;
   font-family: var(--kamito-mincho);
-  font-size: 13px;
-  line-height: 2;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.dashList {
+  margin: 24px 0 40px;
+  padding: 0;
+  list-style: none;
+  font-family: var(--kamito-mincho);
+  font-size: 15px;
+  line-height: 2.2;
   letter-spacing: 0.06em;
   color: var(--kamito-ink-soft);
 }
 
-.sampleRefund {
-  display: block;
-  color: var(--kamito-accent);
-}
-
-.dashList {
-  margin: 28px 0 36px;
-  padding: 24px 0 0;
-  border-top: 1px solid var(--kamito-line);
-  list-style: none;
-  font-family: var(--kamito-mincho);
-  font-size: 13px;
-  line-height: 2.1;
-  letter-spacing: 0.07em;
-  color: var(--kamito-ink-soft);
-}
-
 .dashList li {
-  position: relative;
-  padding-left: 1.6em;
+  display: flex;
+  gap: 14px;
 }
 
 .dashList li::before {
   content: "—";
-  position: absolute;
-  left: 0;
+  font-family: var(--kamito-mono);
   color: var(--kamito-ink-quiet);
 }
 
-.sampleBox .btn {
+.sampleDetail .btn {
   width: 100%;
 }
 
 /* ----- Order flow ----------------------------------------------- */
 
 .steps {
-  margin: 8px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 40px);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .step {
-  position: relative;
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 4px 20px;
-  padding-bottom: 44px;
-}
-
-/* Vertical hairline linking the step numbers. */
-.step:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: 18px;
-  top: 52px;
-  bottom: 12px;
-  width: 1px;
-  background: var(--kamito-line);
+  padding-top: 24px;
+  border-top: 1px solid var(--kamito-ink);
+  min-width: 0;
 }
 
 .stepNum {
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: 34px;
-  font-weight: 300;
-  line-height: 1;
-  color: var(--kamito-ink-quiet);
-  font-variant-numeric: tabular-nums;
+  display: block;
+  margin-bottom: 28px;
+  font-family: var(--kamito-display);
+  font-style: italic;
+  font-size: clamp(56px, 6vw, 88px);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums;
+  color: var(--kamito-ink);
 }
 
 .stepTitle {
-  margin: 4px 0 10px;
+  margin: 0 0 14px;
   font-family: var(--kamito-mincho);
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 500;
   letter-spacing: 0.08em;
   line-height: 1.6;
 }
 
-.stepBody {
-  grid-column: 2;
-  min-width: 0;
+.step .body {
+  font-size: 15px;
+  line-height: 2;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 14px 0 0;
+  margin: 18px 0 0;
   padding: 0;
   list-style: none;
 }
 
 .tags li {
-  padding: 4px 12px;
+  padding: 4px 10px;
   border: 1px solid var(--kamito-line);
-  font-family: var(--kamito-mincho);
+  font-family: var(--kamito-mono);
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   color: var(--kamito-ink-soft);
 }
 
 .flowCta {
-  margin-top: 16px;
+  margin-top: clamp(56px, 6vw, 88px);
 }
 
 /* ----- Closing -------------------------------------------------- */
 
 .closing {
-  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .closingTitle {
-  margin: 0 0 24px;
+  position: relative;
+  margin: 0;
   font-family: var(--kamito-mincho);
-  font-size: clamp(26px, 3.4vw, 38px);
-  font-weight: 300;
-  line-height: 1.7;
-  letter-spacing: 0.14em;
+  font-size: clamp(34px, 5.6vw, 80px);
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+}
+
+.closingTitle span {
+  display: block;
 }
 
 .closing .body {
-  margin-bottom: 44px;
+  position: relative;
+  margin-top: 36px;
 }
 
 .ctaRow {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+  align-items: center;
+  gap: 16px 40px;
+  margin-top: 56px;
+}
+
+/* Blind-embossed brand line pressed into the page behind the closing. */
+.embossBg {
+  position: absolute;
+  right: clamp(8px, 3vw, 48px);
+  bottom: clamp(24px, 4vw, 64px);
+  margin: 0;
+  font-family: var(--kamito-mincho);
+  font-size: clamp(120px, 20vw, 300px);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
 }
 
 /* ----- Footer --------------------------------------------------- */
 
 .footer {
-  padding: 56px 20px 48px;
-  border-top: 1px solid var(--kamito-line);
+  border-top: 1px solid var(--kamito-ink);
   background: var(--kamito-bg);
-  text-align: center;
+}
+
+.footerInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px 40px;
+  padding-block: 40px 48px;
 }
 
 .footerLogo {
-  margin: 0 0 10px;
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: 20px;
-  font-weight: 400;
-  letter-spacing: 0.4em;
-  color: var(--kamito-ink);
+  margin: 0;
+  font-family: var(--kamito-display);
+  font-size: 28px;
+  letter-spacing: 0.32em;
 }
 
 .footerTag {
-  margin: 0;
+  margin: 0 0 0 16px;
   font-family: var(--kamito-mincho);
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.16em;
   color: var(--kamito-ink-soft);
 }
 
 .footerNote {
-  margin: 32px 0 0;
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  margin: 0;
+  font-family: var(--kamito-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
   color: var(--kamito-ink-quiet);
 }
 
-/* ----- Small screens -------------------------------------------- */
+/* ----- Responsive ----------------------------------------------- */
 
-@media (max-width: 720px) {
+@media (max-width: 1080px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 56px;
+  }
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .storyText,
+  .signature,
+  .sampleIntro,
+  .sampleDetail {
+    grid-column: 1;
+  }
+
+  .sampleDetail {
+    margin-top: 56px;
+  }
+}
+
+@media (max-width: 600px) {
   .body {
-    font-size: 14px;
+    font-size: 15px;
   }
 
-  .table tbody th {
-    font-size: 18px;
-  }
-
-  .table td {
-    font-size: 13px;
-  }
-
-  .ctaRow > * {
-    width: 100%;
-  }
-
-  .step {
-    grid-template-columns: 44px 1fr;
-    gap: 4px 14px;
-  }
-
-  .step:not(:last-child)::after {
-    left: 14px;
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 48px;
   }
 
   .stepNum {
-    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .table tbody th {
+    width: auto;
+    padding-right: 12px;
+  }
+
+  .table td {
+    font-size: 14px;
+  }
+
+  .btn {
+    width: 100%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .btn,
-  .btnGhost {
+  .link,
+  .arrow {
     transition: none;
   }
 }

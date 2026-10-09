@@ -1,28 +1,26 @@
 /* =========================================================
    KAMITO — global baseline
-   Minimal, quiet, white-based.
-   Keep this file small on purpose. Most styling lives
-   inside each component's CSS module.
+   Uncoated white stock and black ink: no cream, no copper.
+   Most styling lives in each component's CSS module.
    ========================================================= */
 
 :root {
-  /* Color tokens — soft off-white paper feel */
-  --kamito-bg: #f7f5f0;          /* page background (slightly warm off-white) */
-  --kamito-surface: #ffffff;     /* surfaces slightly lighter than bg */
-  --kamito-ink: #1f1d1a;         /* primary text */
-  --kamito-ink-soft: #6b6960;    /* secondary text */
-  --kamito-ink-quiet: #9a978d;   /* tertiary / eyebrow text */
-  --kamito-line: #e7e3d9;        /* hairline dividers */
-  --kamito-paper-deep: #efebe2;  /* alternate section ground */
-  --kamito-accent: #8f5e33;      /* deep copper — eyebrows, prices (AA on bg) */
+  /* Color — paper, ink, and nothing decorative */
+  --kamito-bg: #fafaf8;          /* uncoated white stock */
+  --kamito-bg-2: #f0efeb;        /* second sheet, for alternate bands */
+  --kamito-surface: #ffffff;
+  --kamito-ink: #151515;         /* press black */
+  --kamito-ink-soft: #5c5c58;    /* body text */
+  --kamito-ink-quiet: #72726d;   /* labels (AA at 14px) */
+  --kamito-line: #dcdbd6;        /* hairlines */
+  --kamito-foil: #9c7a45;        /* gold foil — kiza only */
 
-  /* Type scale helpers */
-  --kamito-serif: "Cormorant Garamond", "Noto Serif JP", Georgia,
-    "Times New Roman", serif;
-  --kamito-sans: "Inter", "Helvetica Neue", Helvetica, "Hiragino Sans",
-    "Yu Gothic", system-ui, -apple-system, sans-serif;
-  --kamito-mincho: var(--kamito-mincho-font), "Hiragino Mincho ProN",
-    "Yu Mincho", serif;
+  /* Type */
+  --kamito-display: var(--font-display), "Bodoni 72", Didot, Georgia, serif;
+  --kamito-mincho: var(--font-mincho), "Hiragino Mincho ProN", "Yu Mincho",
+    serif;
+  --kamito-mono: var(--font-mono), ui-monospace, "SFMono-Regular", Menlo,
+    monospace;
 }
 
 html {
@@ -43,6 +41,18 @@ html {
    .reveal-photo fade + slight zoom settling to 1 (photos)
    .reveal-line  hairline drawing in from the left
    ========================================================= */
+/* Blind emboss (空押し): glyphs a shade darker than the sheet, with a
+   light edge below, so they read as pressed into the paper.
+   Decorative only — always pair with real, readable text. */
+.emboss {
+  --emboss-ground: var(--kamito-bg);
+  color: color-mix(in srgb, var(--emboss-ground) 96%, #000);
+  /* em-based so the bevel scales with the glyph size */
+  text-shadow:
+    0 0.012em 0.006em #fff,
+    0 -0.008em 0.008em rgba(0, 0, 0, 0.09);
+}
+
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .reveal,
@@ -112,7 +122,7 @@ body {
   padding: 0;
   background: var(--kamito-bg);
   color: var(--kamito-ink);
-  font-family: var(--kamito-sans);
+  font-family: var(--kamito-mincho);
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;

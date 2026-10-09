@@ -1,34 +1,37 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter, Noto_Serif_JP } from "next/font/google";
+import { Bodoni_Moda, IBM_Plex_Mono, Shippori_Mincho } from "next/font/google";
 import "./globals.css";
 
 /* -----------------------------------------------------------
-   Fonts
-   - Serif (Cormorant Garamond) for Latin headlines and labels.
-   - Sans (Inter) for small UI text.
-   - Mincho (Noto Serif JP) for Japanese copy in the lower sections.
-   All are self-hosted via next/font (no layout shift).
+   Fonts — all three trace back to letterpress printing.
+   - Bodoni Moda: Latin display (Bodoni, a classic press face).
+   - Shippori Mincho: Japanese text (modelled on Meiji-era Tsukiji type).
+   - IBM Plex Mono: specs, labels, numbers — like a print job ticket.
+   Self-hosted via next/font (no layout shift).
    ----------------------------------------------------------- */
-const mincho = Noto_Serif_JP({
+const display = Bodoni_Moda({
   subsets: ["latin"],
-  weight: ["300", "400"],
-  variable: "--kamito-mincho-font",
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  variable: "--font-display",
   display: "swap",
-  // Japanese is split into many unicode-range files; let the browser fetch only what it needs.
+  // next/font has no metrics for Bodoni Moda; skip the generated fallback face.
+  adjustFontFallback: false,
+});
+
+const mincho = Shippori_Mincho({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mincho",
+  display: "swap",
+  // Japanese is split into many unicode-range files; fetch only what's used.
   preload: false,
 });
 
-const serif = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["300", "400"],
-  variable: "--kamito-serif-font",
-  display: "swap",
-});
-
-const sans = Inter({
+const mono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
-  variable: "--kamito-sans-font",
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -46,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${serif.variable} ${sans.variable} ${mincho.variable}`}
+      className={`${display.variable} ${mincho.variable} ${mono.variable}`}
     >
       <body>{children}</body>
     </html>

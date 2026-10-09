@@ -34,17 +34,26 @@ export const links = {
   consult: "#contact",
 };
 
-export const story: { title: string; paragraphs: RichText[]; closing: string } = {
+export const story: {
+  title: string;
+  /** `pivot: true` sets that paragraph large, as the turn of the story. */
+  paragraphs: { text: RichText; pivot?: boolean }[];
+  closing: string;
+} = {
   title: "なぜ私たちが紙にこだわるのか",
   paragraphs: [
-    ["すべてが、", { strong: "画面の上で完結する" }, "時代になった。"],
-    [
-      "出会いも、やり取りも、記憶でさえも——スクロールされて、タップされて、いつの間にか流れていく。",
-    ],
-    ["それでもまだ、", { strong: "紙を選ぶ人がいる。" }],
-    [
-      "自分のブランドを、指先で伝えたい人が。デジタルでは絶対に再現できない「物の温度」を、誰かの記憶に刻もうとしている人が。",
-    ],
+    { text: ["すべてが、", { strong: "画面の上で完結する" }, "時代になった。"] },
+    {
+      text: [
+        "出会いも、やり取りも、記憶でさえも——スクロールされて、タップされて、いつの間にか流れていく。",
+      ],
+    },
+    { text: ["それでもまだ、", { strong: "紙を選ぶ人がいる。" }], pivot: true },
+    {
+      text: [
+        "自分のブランドを、指先で伝えたい人が。デジタルでは絶対に再現できない「物の温度」を、誰かの記憶に刻もうとしている人が。",
+      ],
+    },
   ],
   closing: "KAMITOは、その人たちのために作った。",
 };

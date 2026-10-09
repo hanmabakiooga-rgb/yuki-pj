@@ -36,8 +36,8 @@
   top: clamp(24px, 4vw, 40px);
   left: clamp(24px, 4vw, 48px);
   margin: 0;
-  font-family: var(--kamito-sans-font, var(--kamito-sans));
-  font-size: 11px;
+  font-family: var(--kamito-mono);
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.42em;
   text-transform: uppercase;
@@ -69,7 +69,7 @@
   aspect-ratio: 16 / 9; /* overridden inline by videoAspectRatio */
 
   /* subtle paper-tone placeholder behind the poster while it loads */
-  background-color: #eeebe2;
+  background-color: var(--kamito-bg-2);
   border-radius: 2px;
   overflow: hidden;
 
@@ -114,18 +114,20 @@
 
 .headline {
   margin: 0;
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-weight: 300;
-  font-size: clamp(28px, 3.8vw, 46px);
-  line-height: 1.22;
-  letter-spacing: 0.015em;
+  font-family: var(--kamito-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(30px, 4.2vw, 56px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
   color: var(--kamito-ink);
 }
 
 .subtext {
   margin: 0;
-  max-width: 44ch;
-  font-size: clamp(13px, 1.05vw, 15px);
+  max-width: 34em;
+  font-family: var(--kamito-mincho);
+  font-size: clamp(14px, 1.1vw, 16px);
   line-height: 1.95;
   letter-spacing: 0.06em;
   color: var(--kamito-ink-soft);
@@ -144,9 +146,10 @@
   padding: 10px 2px 8px;
   text-decoration: none;
   color: var(--kamito-ink);
-  font-size: 11.5px;
+  font-family: var(--kamito-mono);
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   position: relative;
 }
@@ -258,8 +261,8 @@
   }
 
   .headline {
-    font-size: clamp(22px, 6.2vw, 30px);
-    letter-spacing: 0.02em;
+    font-size: clamp(28px, 8vw, 36px);
+    letter-spacing: -0.01em;
   }
 
   .subtext {

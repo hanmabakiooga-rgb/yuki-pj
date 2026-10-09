@@ -1,39 +1,54 @@
 /* =========================================================
-   Product lines — photo gallery + quiet spec text per line.
-   Desktop: alternating two-column rows. Mobile: stacked.
+   Product lines — one spread per line.
+   Giant embossed name overlapped by a flat photo; spec sheet
+   in mono labels beside it.
    ========================================================= */
-
-.wrap {
-  max-width: 1100px;
-  margin: 0 auto;
-}
 
 .list {
   display: grid;
-  gap: clamp(88px, 10vw, 140px);
-  margin-top: clamp(24px, 4vw, 48px);
+  gap: clamp(120px, 14vw, 200px);
 }
 
 .line {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  align-items: center;
-  gap: clamp(32px, 6vw, 80px);
+  position: relative;
 }
 
-/* Alternate the photo side so the column reads like a printed catalogue. */
-.line:nth-child(even) .gallery {
-  order: 2;
+.no {
+  margin: 0;
+  font-family: var(--kamito-mono);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: var(--kamito-ink-quiet);
+}
+
+/* Giant name pressed into the page; the photo overlaps its lower part. */
+.giant {
+  margin: 0 0 -0.2em;
+  font-family: var(--kamito-display);
+  font-style: italic;
+  font-size: clamp(132px, 27vw, 380px);
+  font-weight: 400;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  font-variation-settings: "opsz" 96;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.body {
+  position: relative;
+  z-index: 1;
+  align-items: end;
 }
 
 /* ----- Gallery -------------------------------------------------- */
 
 .gallery {
+  grid-column: 1 / span 8;
   position: relative;
   min-width: 0;
 }
 
-/* Visually hidden, still focusable and announced. */
 .radio {
   position: absolute;
   width: 1px;
@@ -48,9 +63,9 @@
 
 .frames {
   position: relative;
-  aspect-ratio: 1.75;
-  /* room for the caption under the photo */
-  margin-bottom: 40px;
+  aspect-ratio: 1.6;
+  margin-bottom: 44px;
+  background: var(--kamito-bg-2);
 }
 
 .frame {
@@ -68,10 +83,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: var(--kamito-surface);
-  box-shadow:
-    0 30px 60px -40px rgba(40, 36, 28, 0.28),
-    0 6px 14px -8px rgba(40, 36, 28, 0.1);
 }
 
 .frame figcaption {
@@ -80,12 +91,11 @@
   left: 0;
   padding-top: 14px;
   font-family: var(--kamito-mincho);
-  font-size: 13px;
-  letter-spacing: 0.12em;
+  font-size: 14px;
+  letter-spacing: 0.1em;
   color: var(--kamito-ink-soft);
 }
 
-/* Show the frame whose radio is checked. */
 .radio:nth-of-type(1):checked ~ .frames .frame:nth-child(1),
 .radio:nth-of-type(2):checked ~ .frames .frame:nth-child(2),
 .radio:nth-of-type(3):checked ~ .frames .frame:nth-child(3) {
@@ -96,15 +106,16 @@
 
 .thumbs {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
+/* Thumbnails marked by a hairline underneath, not a box. */
 .thumb {
-  width: 72px;
-  aspect-ratio: 1.75;
-  padding: 2px;
-  border: 1px solid transparent;
-  opacity: 0.5;
+  width: 84px;
+  aspect-ratio: 1.6;
+  padding-bottom: 8px;
+  border-bottom: 1px solid transparent;
+  opacity: 0.45;
   cursor: pointer;
   transition:
     opacity 240ms ease,
@@ -118,91 +129,114 @@
 }
 
 .thumb:hover {
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .radio:nth-of-type(1):checked ~ .thumbs .thumb:nth-child(1),
 .radio:nth-of-type(2):checked ~ .thumbs .thumb:nth-child(2),
 .radio:nth-of-type(3):checked ~ .thumbs .thumb:nth-child(3) {
   opacity: 1;
-  border-color: var(--kamito-ink);
+  border-bottom-color: var(--kamito-ink);
 }
 
 .radio:nth-of-type(1):focus-visible ~ .thumbs .thumb:nth-child(1),
 .radio:nth-of-type(2):focus-visible ~ .thumbs .thumb:nth-child(2),
 .radio:nth-of-type(3):focus-visible ~ .thumbs .thumb:nth-child(3) {
-  outline: 1px solid var(--kamito-accent);
-  outline-offset: 3px;
+  outline: 1px solid var(--kamito-ink);
+  outline-offset: 4px;
 }
 
-/* ----- Text ----------------------------------------------------- */
+/* ----- Spec sheet ----------------------------------------------- */
 
-.text {
+.spec {
+  grid-column: 10 / span 3;
   min-width: 0;
-}
-
-.process {
-  margin: 0 0 14px;
-  font-family: var(--kamito-mincho);
-  font-size: 14px;
-  letter-spacing: 0.2em;
-  color: var(--kamito-accent);
+  padding-bottom: 56px;
 }
 
 .name {
-  margin: 0 0 24px;
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: clamp(44px, 5vw, 64px);
-  font-weight: 300;
+  margin: 0 0 20px;
+  font-family: var(--kamito-display);
+  font-style: italic;
+  font-size: 48px;
+  font-weight: 400;
   line-height: 1;
-  letter-spacing: 0.2em;
+  letter-spacing: -0.01em;
+}
+
+/* kiza is the foil line — its name carries the foil. */
+.line[data-line="kiza"] .name {
+  color: var(--kamito-foil);
 }
 
 .copy {
-  margin: 0 0 28px;
+  margin: 0 0 32px;
   font-family: var(--kamito-mincho);
-  font-size: 15px;
-  font-weight: 300;
-  line-height: 2.1;
-  letter-spacing: 0.08em;
-  color: var(--kamito-ink-soft);
-}
-
-.price {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  margin: 0;
-  padding-top: 20px;
-  border-top: 1px solid var(--kamito-line);
-  font-family: var(--kamito-serif-font, var(--kamito-serif));
-  font-size: 24px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 2;
   letter-spacing: 0.06em;
-  color: var(--kamito-accent);
-  font-variant-numeric: tabular-nums;
 }
 
-.note {
-  font-family: var(--kamito-mincho);
+.specList {
+  margin: 0;
+  border-top: 1px solid var(--kamito-ink);
+}
+
+.specList > div {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  align-items: baseline;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--kamito-line);
+}
+
+.specList dt {
+  font-family: var(--kamito-mono);
   font-size: 12px;
   letter-spacing: 0.12em;
-  color: var(--kamito-ink-soft);
+  text-transform: uppercase;
+  color: var(--kamito-ink-quiet);
 }
 
-/* ----- Small screens -------------------------------------------- */
+.specList dd {
+  margin: 0;
+  font-family: var(--kamito-mincho);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
 
-@media (max-width: 860px) {
-  .line {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
+.specList .price {
+  font-family: var(--kamito-display);
+  font-size: 26px;
+  font-variant-numeric: lining-nums;
+}
+
+/* ----- Responsive ----------------------------------------------- */
+
+@media (max-width: 1080px) {
+  .gallery {
+    grid-column: 1 / span 7;
   }
 
-  .line:nth-child(even) .gallery {
-    order: 0;
+  .spec {
+    grid-column: 8 / span 5;
+  }
+}
+
+@media (max-width: 900px) {
+  .gallery,
+  .spec {
+    grid-column: 1;
+  }
+
+  .spec {
+    padding: 48px 0 0;
   }
 
   .thumb {
-    width: 64px;
+    width: 72px;
   }
 }
 

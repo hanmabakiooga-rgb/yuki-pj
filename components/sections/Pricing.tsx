@@ -1,21 +1,25 @@
 import { pricingNotes, productLines } from "@/content/kamito";
+import Price from "./Price";
+import SectionHeader from "./SectionHeader";
 import s from "./sections.module.css";
 
 export default function Pricing() {
   return (
     <section className={s.section} id="pricing" aria-labelledby="pricing-title">
-      <div className={s.column}>
-        <p className={`${s.eyebrow} reveal`}>Pricing</p>
-        <h2 id="pricing-title" className={`${s.title} reveal`}>
-          価格・仕様
-        </h2>
+      <div className={s.container}>
+        <SectionHeader
+          index="03"
+          category="Pricing"
+          title="価格・仕様"
+          id="pricing-title"
+        />
         <table className={`${s.table} reveal`}>
           <thead>
             <tr>
-              <th scope="col">ライン</th>
-              <th scope="col">加工</th>
+              <th scope="col">Line</th>
+              <th scope="col">Process</th>
               <th scope="col" style={{ textAlign: "right" }}>
-                価格（税抜）
+                Price (税抜)
               </th>
             </tr>
           </thead>
@@ -24,7 +28,9 @@ export default function Pricing() {
               <tr key={line.id}>
                 <th scope="row">{line.name}</th>
                 <td>{line.process}</td>
-                <td className={s.price}>{line.price}</td>
+                <td className={s.price}>
+                  <Price value={line.price} />
+                </td>
               </tr>
             ))}
           </tbody>
